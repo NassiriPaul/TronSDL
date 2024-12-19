@@ -32,14 +32,11 @@ typedef struct dot {
 	struct dot *nextDot;
 } Dot;
 
-typedef struct 
-{
-    Dot *premier;
-} Route;
+typedef Dot* Route;
 
 // A REVOIR
-void freeRoute (Route* r){
-	Dot *current = r->premier;
+void freeRoute (Route r){
+	Dot *current = r;
     Dot *nextDot;
     
     while (current) {
@@ -47,9 +44,6 @@ void freeRoute (Route* r){
         free(current);               // Libère l'élément actuel
         current = nextDot;           // Passe au suivant
     }
-    
-    r->premier = NULL;
-	free(r);// Une fois la liste vide, on met le premier à NULL
 }
 
 typedef struct {
@@ -59,8 +53,8 @@ typedef struct {
 	Rider* player;
 	Rider* bot;
 
-	Route* playerRoute;
-	Route* botRoute;
+	Route playerRoute;
+	Route botRoute;
 
 } Grid;
 
@@ -75,35 +69,38 @@ Grid* initGrid (int n_lines, int n_columns) {
 	grid->player = initRider((n_columns*2)/3, n_lines/2);
 	grid->bot = initRider(n_columns/3, n_lines/2);
 
-	grid->playerRoute = (Route*) malloc (sizeof(Route));
-	grid->botRoute = (Route*) malloc (sizeof(Route));
-	grid->playerRoute->premier = grid->botRoute->premier = NULL;
+	grid->playerRoute = (Route) malloc (sizeof(Dot));
+	grid->botRoute = (Route) malloc (sizeof(Dot));
+	grid->playerRoute = grid->botRoute = NULL;
 
 	return grid;
 }
 
 void printGrid (Grid* grid){
-	// check both routes
-	Dot* dot;
-	dot = grid->botRoute->premier;
 	printf("Bot route : ");
-	if (!dot) printf("No route\n");
-	else printf("\n");
-	while (dot)
-	{
-		printf("(%d, %d)\n", dot->pos_x, dot->pos_x);
-		dot = dot->nextDot;
-	}
+	if (!grid->botRoute)
+    {
+        printf("No Route");
+    }
+    Dot *current = grid->botRoute;
+    while (current != NULL)
+    {
+        printf("(%d, %d) <- ", current->pos_x, current->pos_y);
+        current = current->nextDot;
+    }
+	printf("\n");
 	printf("Player route : ");
-	
-	dot = grid->playerRoute->premier;
-	if (!dot) printf("No route\n");
-	else printf("\n");
-	while (dot)
-	{
-		printf("(%d, %d)\n", dot->pos_x, dot->pos_x);
-		dot = dot->nextDot;
-	}
+	if (!grid->playerRoute)
+    {
+        printf("No Route");
+    }
+    current = grid->playerRoute;
+    while (current != NULL)
+    {
+        printf("(%d, %d) <- ", current->pos_x, current->pos_y);
+        current = current->nextDot;
+    }
+    printf("NULL\n");
 	printf("Player position : (%d, %d)\n", grid->player->pos_x, grid->player->pos_y);
 	printf("Bot position : (%d, %d)\n", grid->bot->pos_x, grid->bot->pos_y);
 }
@@ -198,7 +195,7 @@ int checkCollision (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
 
 	// check both routes
 	Dot* dot;
-	dot = grid->botRoute->premier;
+	dot = grid->botRoute;
 	while (dot)
 	{
 		if (dot->pos_x == presumed_next_pos_x && dot->pos_y == presumed_next_pos_y) {
@@ -208,7 +205,7 @@ int checkCollision (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
 		dot = dot->nextDot;
 	}
 
-	dot = grid->playerRoute->premier;
+	dot = grid->playerRoute;
 	while (dot)
 	{
 		if (dot->pos_x == presumed_next_pos_x && dot->pos_y == presumed_next_pos_y) {
@@ -224,22 +221,22 @@ int checkCollision (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
 	return 0;
 }
 
-void updateRoute (Rider* rider,Route* route) {
+Route updateRoute (Rider* rider,Route route) {
     // Crée un nouveau dot
     Dot *newDot = (Dot *)malloc(sizeof(Dot));
     if (!newDot) {
         // Vérifie si l'allocation mémoire a échoué
         perror("Error allocating new dot\n");
-        return;
+        return route;
     }
     
     // Initialiser les valeurs du nouveau Dot
     newDot->pos_x = rider->pos_x;
 	newDot->pos_y = rider->pos_y;
-    newDot->nextDot = route->premier; // Le nouveau Dot pointe vers le premier élément
+    newDot->nextDot = route; // Le nouveau Dot pointe vers le premier élément
     
     // Le nouveau Dot devient maintenant le premier de la liste
-    route->premier = newDot;
+    return newDot;
 }
 /*
 Move a rider in the grid toward a direction
@@ -261,11 +258,11 @@ int move (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
 
 	if (movingRider == PLAYER) {
 		rider = grid->player;
-		updateRoute (rider, grid->playerRoute);
+		grid->playerRoute = updateRoute (rider, grid->playerRoute);
 	}
 	else {
 		rider = grid->bot;
-		updateRoute (rider, grid->botRoute);
+		grid->botRoute = updateRoute (rider, grid->botRoute);
 	}
 	printf("Rider was (%d, %d) and is now ", rider->pos_x, rider->pos_y);
 	switch (direction)
@@ -294,7 +291,7 @@ int main(){
 
 	move (grid, UP, PLAYER);
 	move (grid, UP, PLAYER);
-	move (grid, UP, PLAYER);
+	move (grid, RIGHT, PLAYER);
 	move (grid, UP, PLAYER);
 	move (grid, UP, PLAYER);
 	move (grid, UP, PLAYER);
