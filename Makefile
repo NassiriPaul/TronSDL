@@ -19,9 +19,8 @@ MODEL_SRC = $(SRCDIR)/model/grid.c \
 
 VIEW_SRC = $(SRCDIR)/view/ncurses_view.c
 
-CONTROLLER_SRC = $(SRCDIR)/controller/game_controller.c
-#\
-				$(SRCDIR)/controller/input_handler.c 
+CONTROLLER_SRC = $(SRCDIR)/controller/game_controller.c\
+				$(SRCDIR)/controller/ncurses_controller.c
 
 MAIN_SRC = $(SRCDIR)/main.c
 
