@@ -2,21 +2,26 @@
 #include <type.h>
 #include <curses.h>
 
-DIRECTION getDirection(){
+void getDirection(DIRECTIONS* direction){
     noecho();
-    key=getch();
-    swicth (key){
-        case "z"|:
+    halfdelay(10); //attends 1 seconde
+    int key=getch();
+    switch (key){
+        case 0:
+            break;
         case KEY_UP:
-            return UP;
-        case "d":
+            *direction = UP;
+            break;
         case KEY_RIGHT:
-            return RIGHT;
-        case "s":
+            *direction = RIGHT;
+            break;
         case KEY_DOWN:
-            return DOWN;
-        case "q":
+            *direction = DOWN;
+            break;
         case KEY_LEFT:
-            return LEFT;
+            *direction = LEFT;
+            break;
+        default:
+            break;
     }
 }
