@@ -1,5 +1,5 @@
 //#include....
-#include <type.h>
+#include <types.h>
 #include <curses.h>
 
 void getDirection(DIRECTIONS* direction){
