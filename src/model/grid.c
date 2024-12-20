@@ -22,32 +22,32 @@ Grid* initGrid (int n_lines, int n_columns) {
 }
 
 void printGrid (Grid* grid){
-	printf("Bot route : ");
+	//printf("Bot route : ");
 	if (!grid->botRoute)
     {
-        printf("No Route");
+        //printf("No Route");
     }
     Dot *current = grid->botRoute;
     while (current != NULL)
     {
-        printf("(%d, %d) <- ", current->pos_x, current->pos_y);
+        //printf("(%d, %d) <- ", current->pos_x, current->pos_y);
         current = current->nextDot;
     }
-	printf("\n");
-	printf("Player route : ");
+	//printf("\n");
+	//printf("Player route : ");
 	if (!grid->playerRoute)
     {
-        printf("No Route");
+        //printf("No Route");
     }
     current = grid->playerRoute;
     while (current != NULL)
     {
-        printf("(%d, %d) <- ", current->pos_x, current->pos_y);
+        //printf("(%d, %d) <- ", current->pos_x, current->pos_y);
         current = current->nextDot;
     }
-    printf("NULL\n");
-	printf("Player position : (%d, %d)\n", grid->player->pos_x, grid->player->pos_y);
-	printf("Bot position : (%d, %d)\n", grid->bot->pos_x, grid->bot->pos_y);
+    //printf("NULL\n");
+	//printf("Player position : (%d, %d)\n", grid->player->pos_x, grid->player->pos_y);
+	//printf("Bot position : (%d, %d)\n", grid->bot->pos_x, grid->bot->pos_y);
 }
 
 void freeGrid(Grid* grid) {
@@ -83,7 +83,7 @@ static void setPresumedNextDirection(DIRECTIONS direction, Rider* rider, int* ne
 
 static int checkCollisionWithGrid(int next_x, int next_y, int n_lines, int n_columns){
 	// check collision with the grid wall
-	if ( next_y = n_lines || next_x < 0 || next_y == 0 || next_x >= n_columns) return 1;
+	if ( next_y == n_lines || next_x < 0 || next_y == 0 || next_x >= n_columns) return 1;
 	return 0;
 }
 
@@ -145,7 +145,7 @@ int moveRider (Grid* grid,  RIDERS movingRider) {
 		grid->botRoute = updateRoute (rider, grid->botRoute);
 		direction = grid->bot->direction;
 	}
-	printf("Rider was (%d, %d) and is now ", rider->pos_x, rider->pos_y);
+	//printf("Rider was (%d, %d) and is now ", rider->pos_x, rider->pos_y);
 	switch (direction)
 	{
 		case UP:
@@ -161,7 +161,7 @@ int moveRider (Grid* grid,  RIDERS movingRider) {
 			rider->pos_x -= 1;
 			break;
 	}
-	printf("(%d, %d)\n", rider->pos_x, rider->pos_y);
+	//printf("(%d, %d)\n", rider->pos_x, rider->pos_y);
 
 	return 0;
 }
