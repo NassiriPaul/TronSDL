@@ -1,2 +1,3 @@
  - Dans les fonctions move et checkCollision on fait des calculs similaires. Optimiser quitte à modifier les signatures des fonctions.
   - Modulariser le code
+ -Option pour mapper ses touches si on veut
