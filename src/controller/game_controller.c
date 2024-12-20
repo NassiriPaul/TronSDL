@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
-
+#include <curses.h>
 static int msleep(long sec, long nanosec)
 {
     struct timespec req, rem;
@@ -38,8 +38,8 @@ static int difference(struct timespec time1, struct timespec time2){
 }
 
 static void changeDirectionPlayer(Grid* grid, DIRECTIONS direction) {
-    if ((direction == UP || direction == DOWN) && grid->player->direction != UP && direction != DOWN) grid->player->direction = direction;
-    if ((direction == RIGHT || direction == RIGHT) && grid->player->direction != RIGHT && direction != RIGHT) grid->player->direction = direction;
+    if ((direction == UP || direction == DOWN) && grid->player->direction != UP && grid->player->direction != DOWN) grid->player->direction = direction;
+    if ((direction == LEFT || direction == RIGHT) && grid->player->direction != LEFT && grid->player->direction != RIGHT) grid->player->direction = direction;
 }
 
 static void changeDirectionBot(Grid* grid) {
@@ -81,11 +81,11 @@ void playGame(Grid* grid) {
     struct timespec time_ingame;
 
     timespec_get(&time_ingame, TIME_UTC);
-    next_move = addDelay(time_ingame, 0L, 500000000L);
-
+    next_move = addDelay(time_ingame, 0L, 200000000L);
+    DIRECTIONS input;
     while(!end) {
-        DIRECTIONS direction = getDirection();
-        changeDirectionPlayer(grid, direction);
+        getDirection(&input);
+        changeDirectionPlayer(grid, input);
         timespec_get(&time_ingame, TIME_UTC);
         if (!difference(next_move, time_ingame)) {
             collision = moveRider (grid, PLAYER);
@@ -96,7 +96,7 @@ void playGame(Grid* grid) {
 
             viewUpdate(grid);
             changeDirectionBot(grid);
-            next_move = addDelay(time_ingame, 0L, 500000000L);
+            next_move = addDelay(time_ingame, 0L, 200000000L);
             
         }
     }
