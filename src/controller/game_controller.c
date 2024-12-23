@@ -8,41 +8,20 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
-static int msleep(long sec, long nanosec)
+
+void sleep_ms(int milliseconds)
 {
-    struct timespec req, rem;
-
-    req.tv_sec = sec;
-    req.tv_nsec = nanosec;
-
-    nanosleep(&req, &rem);
-    return 0;
-}
-
-static struct timespec addDelay(struct timespec original, long sec, long nsec){
-    struct timespec delayed;
-
-    delayed.tv_nsec = original.tv_nsec + nsec;
-    delayed.tv_sec = original.tv_sec + sec + delayed.tv_nsec/1000000000;
-    delayed.tv_nsec %= 1000000000;
-
-    return delayed;
-}
-
-static int difference(struct timespec time1, struct timespec time2){
-    if (time1.tv_sec < time2.tv_sec) return 0;
-    if (time1.tv_sec > time2.tv_sec) return 1;
-    if (time1.tv_nsec < time2.tv_nsec) return 0;
-
-    return 1;
+    usleep(milliseconds * 1000);
 }
 
 static void changeDirectionPlayer(Grid* grid, DIRECTIONS direction) {
     if ((direction == UP || direction == DOWN) && grid->player->direction != UP && grid->player->direction != DOWN) grid->player->direction = direction;
     if ((direction == LEFT || direction == RIGHT) && grid->player->direction != LEFT && grid->player->direction != RIGHT) grid->player->direction = direction;
 }
-
+/*
 static void changeDirectionBot(Grid* grid) {
+    
+	int presumed_next_pos_x,  presumed_next_pos_y;
     int collision = 0;
     collision = checkCollision (grid, BOT);
     if (grid->bot->direction == UP || grid->bot->direction == DOWN){
@@ -61,46 +40,54 @@ static void changeDirectionBot(Grid* grid) {
         grid->bot->direction = DOWN;
         return;
     } 
+}*/
+
+
+int startGame(int n_lines, int n_columns) {
+    int jeu;
+    Grid* grid;
+
     
-}
-
-void startGame(int n_lines, int n_columns) {
-    Grid* grid = initGrid(n_lines, n_columns);
     viewInit();
-    playGame(grid);
+    
+    grid = initGrid(n_lines, n_columns);
+    jeu = playGame(grid);
+
     endGame(grid);
+
+    return jeu;
 }
 
-void playGame(Grid* grid) {
+int playGame(Grid* grid) {
+    int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot;
+    DIRECTIONS input;
+    clock_t start, end;
+     unsigned long elapsed, remaining;
+
     viewStart(grid);
 
-    int collision;
-    int end = 0;
 
-    struct timespec next_move;
-    struct timespec time_ingame;
+    isOver = 0;
+    while(!isOver) {
 
-    timespec_get(&time_ingame, TIME_UTC);
-    next_move = addDelay(time_ingame, 0L, 200000000L);
-    DIRECTIONS input;
-    while(!end) {
-        getDirection(&input);
-        changeDirectionPlayer(grid, input);
-        timespec_get(&time_ingame, TIME_UTC);
-        if (!difference(next_move, time_ingame)) {
-            collision = moveRider (grid, PLAYER);
-            if (collision) end = 1;
-
-            collision = moveRider (grid, BOT);
-            if (collision) end = 2;
-
-            viewUpdate(grid);
-            changeDirectionBot(grid);
-            next_move = addDelay(time_ingame, 0L, 200000000L);
-            
+        input = grid->player->direction;
+        remainingTimePlayer = 200;
+        while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
+            remainingTimePlayer = getDirection(&input, remainingTimePlayer);
         }
+        changeDirectionPlayer(grid, input);
+        collisionIndicator = moveRider (grid, grid->player, &grid->playerRoute);
+        if (collisionIndicator) isOver = 1;
+        viewUpdate(grid);
+        
+        
+
+        /*collision = moveRider (grid, BOT);
+        if (collision) end = 2;
+        changeDirectionBot(grid);*/
+        viewUpdate(grid);
     }
-    
+    return isOver;
 }
 
 void endGame(Grid* grid) {
