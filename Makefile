@@ -1,56 +1,71 @@
-# Nom de l'exécutable
-EXEC = game
+EXEC       = game
+SRCDIR     = src
+INCDIR     = include
+BINDIR     = bin
+OBJDIR     = obj
+TESTDIR    = tests
 
-# Répertoires
-SRCDIR = src
-INCDIR = include
-BINDIR = bin
-OBJDIR = obj
+CC         = gcc
+CFLAGS     =  -ansi -pedantic -I$(INCDIR)
 
-# Compilateur et options
-CC = gcc
-CFLAGS = -Wall -Wextra -I$(INCDIR) -std=c99 -O2
+LIB_SRC = $(SRCDIR)/model/grid.c \
+          $(SRCDIR)/model/rider.c \
+          $(SRCDIR)/model/route.c \
+          $(SRCDIR)/controller/game_controller.c \
+          $(SRCDIR)/controller/ncurses_controller.c \
+          $(SRCDIR)/view/ncurses_view.c
 
-# Fichiers sources par module
-MODEL_SRC = $(SRCDIR)/model/grid.c \
-            $(SRCDIR)/model/rider.c \
-            $(SRCDIR)/model/route.c
-# MODEL_SRC += $(SRCDIR)/model/model.c
+LIB_OBJ = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(LIB_SRC))
 
-#VIEW_SRC = $(SRCDIR)/view/console_view.c
+GAME_MAIN = $(SRCDIR)/main.c
+GAME_MAIN_OBJ = $(OBJDIR)/main.o
 
-#CONTROLLER_SRC = $(SRCDIR)/controller/input_handler.c \
-                 $(SRCDIR)/controller/game_controller.c
+GAME_EXEC = $(BINDIR)/game
 
-MAIN_SRC = $(SRCDIR)/main.c
+TEST_SOURCES = $(TESTDIR)/test_grid.c
+TEST_OBJ = $(patsubst $(TESTDIR)/%.c, $(OBJDIR)/tests/%.o, $(TEST_SOURCES))
+TEST_EXEC = $(BINDIR)/test_exec
 
-# Tous les sources
-SRC = $(MODEL_SRC) $(MAIN_SRC)#$(VIEW_SRC) $(CONTROLLER_SRC) $(MAIN_SRC)
+# ------------------------------------------------------------------
+all: $(GAME_EXEC)
 
-# Génération des objets : on transforme chaque .c en .o
-OBJ = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
-
-# Cible par défaut
-all: $(EXEC)
-
-# Règle pour créer l'exécutable
-$(EXEC): $(OBJ)
+$(GAME_EXEC): $(LIB_OBJ) $(GAME_MAIN_OBJ)
 	@mkdir -p $(BINDIR)
-	$(CC) $(CFLAGS) $^ -o $(BINDIR)/$(EXEC)
-	@echo "Compilation terminée. L'exécutable est dans $(BINDIR)/$(EXEC)"
+	$(CC) $(CFLAGS) $^ -o $@ -lncurses
+	@echo "Game built -> $@"
 
-# Règle générique pour compiler chaque .c en .o
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Nettoyage des objets et de l'exécutable
+$(GAME_MAIN_OBJ): $(GAME_MAIN)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# ------------------------------------------------------------------
+# Tests
+# ------------------------------------------------------------------
+
+$(TEST_EXEC): $(LIB_OBJ) $(TEST_OBJ)
+	@mkdir -p $(BINDIR)
+	$(CC) $(CFLAGS) $^ -o $@ -lncurses
+	@echo "Test executable built -> $@"
+
+$(OBJDIR)/tests/%.o: $(TESTDIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+test: $(TEST_EXEC)
+	@echo "Running tests..."
+	@./$(TEST_EXEC)
+
+# ------------------------------------------------------------------
+# Cleaning
+# ------------------------------------------------------------------
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
 
-# Nettoyage complet
 mrproper: clean
 	rm -f *~ \#*\#
 
-# Pour relancer une compilation propre
 re: mrproper all

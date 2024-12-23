@@ -2,8 +2,9 @@
 #include <stdio.h>
 
 #include "../../include/model.h"
+#include "../../include/types.h"
 
-// Minimum 3 de longeur et 1 de largeur sinon return NULL
+/*Minimum 3 de longeur et 1 de largeur sinon return NULL*/ 
 Grid* initGrid (int n_lines, int n_columns) {
 	Grid* grid = (Grid*) malloc (sizeof(Grid));
 
@@ -21,12 +22,14 @@ Grid* initGrid (int n_lines, int n_columns) {
 }
 
 void printGrid (Grid* grid){
+	Dot *current;
 	printf("Bot route : ");
 	if (!grid->botRoute)
     {
         printf("No Route");
     }
-    Dot *current = grid->botRoute;
+
+    current = grid->botRoute;
     while (current != NULL)
     {
         printf("(%d, %d) <- ", current->pos_x, current->pos_y);
@@ -57,126 +60,79 @@ void freeGrid(Grid* grid) {
 	free (grid);
 }
 
-int checkCollision (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
-	if (!grid) {
-		perror ("No grid allocated yet or NULL");
-		return 1;
-	}
-
-	Rider* rider;
-	Rider* otherRider;
-	int presumed_next_pos_x;
-	int presumed_next_pos_y;
-	
-
-	if (movingRider == PLAYER) {
-		rider = grid->player;
-		otherRider = grid->bot;
-	} else {
-		rider = grid->bot;
-		otherRider = grid->bot;
-	}
-
-	if (!rider) {
-		perror ("The moving rider in the grid is not allocated");
-		return 1;
-	}
-
-	if (!otherRider) {
-		perror ("The other moving rider in the grid is not allocated");
-		return 1;
-	}
-
-	// Set presumed next positions
-	switch (direction)
+void setPresumedNextDirection(Rider* rider, int* next_x, int* next_y){
+	/*Set presumed next positions*/
+	switch (rider->direction)
 	{
 		case UP:
-			presumed_next_pos_y = rider->pos_y-1;
-			presumed_next_pos_x = rider->pos_x;
+			*next_y = rider->pos_y-1;
+			*next_x = rider->pos_x;
 			break;
 		case RIGHT:
-			presumed_next_pos_y = rider->pos_y;
-			presumed_next_pos_x = rider->pos_x+1;
+			*next_y = rider->pos_y;
+			*next_x = rider->pos_x+1;
 			break;
 		case DOWN:
-			presumed_next_pos_y = rider->pos_y+1;
-			presumed_next_pos_x = rider->pos_x;
+			*next_y = rider->pos_y+1;
+			*next_x = rider->pos_x;
 			break;
 		case LEFT:
-			presumed_next_pos_y = rider->pos_y;
-			presumed_next_pos_x = rider->pos_x-1;
+			*next_y = rider->pos_y;
+			*next_x = rider->pos_x-1;
 			break;
-		default:
-			printf("here");
 	}
+}
 
-	// check collision with the grid wall
-	// Reduire en deux if avec un MODULO
-	if ( presumed_next_pos_y < 0 ) {
-		printf("Rider went into the top wall in (%d, %d)\n", rider->pos_x, rider->pos_y);
-		return 2;
-	}
-	if ( presumed_next_pos_y >= grid->n_lines ) {
-		printf("Rider went into the bottom wall in (%d, %d)\n", rider->pos_x, rider->pos_y);
-		return 2;
-	}
-	if ( presumed_next_pos_x < 0 ) {
-		printf("Rider went into the left wall in (%d, %d)\n", rider->pos_x, rider->pos_y);
-		return 2;
-	}
-	if ( presumed_next_pos_x >= grid->n_columns ) {
-		printf("Rider went into the right wall in (%d, %d)\n", rider->pos_x, rider->pos_y);
-		return 2;
-	}
 
-	// check both routes
+static int checkCollisionWithTrail(Route route, int pos_x, int pos_y) {
 	Dot* dot;
-	dot = grid->botRoute;
-	while (dot)
-	{
-		if (dot->pos_x == presumed_next_pos_x && dot->pos_y == presumed_next_pos_y) {
-			printf("Collide with bot route\n");
-			return 2;
-		}
+	dot = route;
+	while (dot) {
+		if (dot->pos_x == pos_x && dot->pos_y == pos_y) return 1;
 		dot = dot->nextDot;
 	}
+	return 0;
+}
 
-	dot = grid->playerRoute;
-	while (dot)
-	{
-		if (dot->pos_x == presumed_next_pos_x && dot->pos_y == presumed_next_pos_y) {
-			printf("Collide with player route\n");
-			return 2;
-		}
-		dot = dot->nextDot;
-	}
+int checkCollision (Grid* grid, int presumed_next_pos_x, int presumed_next_pos_y) {
+	if (!grid) {perror ("No grid allocated yet or NULL");return 1;}
+	if(( presumed_next_pos_x <= 0 || presumed_next_pos_y <= 0)) return 2;
+	if(( presumed_next_pos_x >= grid->n_columns-1 || presumed_next_pos_y >= grid->n_lines-1)) return 2;
+	if(checkCollisionWithTrail(grid->playerRoute, presumed_next_pos_x, presumed_next_pos_y)) return 2;
+	if(checkCollisionWithTrail(grid->botRoute, presumed_next_pos_x, presumed_next_pos_y)) return 2;
 
-	// Check if the moving rider hit the other rider
-	if (presumed_next_pos_x == otherRider->pos_x && presumed_next_pos_y == otherRider->pos_y) return 3;
+	if (presumed_next_pos_x == grid->player->pos_x && presumed_next_pos_y == grid->player->pos_y) return 3;
+	if (presumed_next_pos_x == grid->bot->pos_x && presumed_next_pos_y == grid->bot->pos_y) return 3;
 
 	return 0;
 }
 
-int move (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
+int moveRider (Grid* grid,  Rider* rider, Route* route) {
+	DIRECTIONS direction;
+	int presumed_next_pos_x;
+	int presumed_next_pos_y;
+	int indicatorCollision;
+
 	if (!grid) {
-		perror ("No grid allocated yet or NULL");
+		perror ("No grid allocated yet or NULL in MoveRider");
 		return 1;
 	}
-	Rider* rider;
+	if (!rider) {
+		perror ("The moving rider in the grid is not allocated in MoveRider");
+		return 1;
+	}
+	direction = rider->direction;
 
-	int indicatorCollision = checkCollision (grid, direction, movingRider);
+	if (!rider) {perror ("The moving rider in the grid is not allocated");return 1;}
+
+
+	setPresumedNextDirection(rider, &presumed_next_pos_x, &presumed_next_pos_y);
+	indicatorCollision = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
 	if (indicatorCollision != 0) return indicatorCollision;
 
-	if (movingRider == PLAYER) {
-		rider = grid->player;
-		grid->playerRoute = updateRoute (rider, grid->playerRoute);
-	}
-	else {
-		rider = grid->bot;
-		grid->botRoute = updateRoute (rider, grid->botRoute);
-	}
-	printf("Rider was (%d, %d) and is now ", rider->pos_x, rider->pos_y);
-	switch (direction)
+	*route = updateRoute (rider, *route);
+	
+	switch (rider->direction)
 	{
 		case UP:
 			rider->pos_y -= 1;
@@ -191,8 +147,7 @@ int move (Grid* grid, DIRECTIONS direction, RIDERS movingRider) {
 			rider->pos_x -= 1;
 			break;
 	}
-	printf("(%d, %d)\n", rider->pos_x, rider->pos_y);
+	/*printf("(%d, %d)\n", rider->pos_x, rider->pos_y);*/
 
 	return 0;
 }
-

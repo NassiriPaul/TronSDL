@@ -1,19 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/types.h"
-#include "../include/model.h"
+#include "../include/controller.h"
 
 int main(){
-	int n = 10, m = 10;
-	Grid* grid = initGrid (n, m);
-
-	move (grid, UP, PLAYER);
-	move (grid, UP, PLAYER);
-	move (grid, RIGHT, PLAYER);
-	move (grid, UP, PLAYER);
-	move (grid, UP, PLAYER);
-	move (grid, UP, PLAYER);
-	printGrid (grid);
-	freeGrid (grid);
+	int n, m, res;
+	n = 20, m = 50;
+	res = startGame(n, m);
+	
+    res==1 ? printf("PLAYER HAVE WIN") : printf("PLAYER HAVE LOST");
 	return 0;
 }
