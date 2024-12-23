@@ -3,9 +3,10 @@
 #include "../include/controller.h"
 
 int main(){
-	int n = 20, m = 50;
-	startGame(n, m);
+	int n, m, res;
+	n = 20, m = 50;
+	res = startGame(n, m);
 	
-    printf("game is over");
+    res==1 ? printf("PLAYER HAVE WIN") : printf("PLAYER HAVE LOST");
 	return 0;
 }

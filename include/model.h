@@ -37,6 +37,7 @@ typedef struct {
 Grid *initGrid(int n_lines, int n_columns);
 void printGrid(Grid *grid);
 void freeGrid(Grid *grid);
+void setPresumedNextDirection(Rider* rider, int* next_x, int* next_y);
 /*
 Check if a ridercan move in the grid toward a direction
 Return possibility:

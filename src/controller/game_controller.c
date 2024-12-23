@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
+#include <sys/select.h> /* select()       */
+
 
 void sleep_ms(int milliseconds)
 {
@@ -18,79 +20,68 @@ static void changeDirectionPlayer(Grid* grid, DIRECTIONS direction) {
     if ((direction == UP || direction == DOWN) && grid->player->direction != UP && grid->player->direction != DOWN) grid->player->direction = direction;
     if ((direction == LEFT || direction == RIGHT) && grid->player->direction != LEFT && grid->player->direction != RIGHT) grid->player->direction = direction;
 }
-/*
+
 static void changeDirectionBot(Grid* grid) {
-    
-	int presumed_next_pos_x,  presumed_next_pos_y;
-    int collision = 0;
-    collision = checkCollision (grid, BOT);
+	int presumed_next_pos_x,  presumed_next_pos_y, collisionIndicator;
+    setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+    collisionIndicator = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+    if(!collisionIndicator) return;
     if (grid->bot->direction == UP || grid->bot->direction == DOWN){
-        if(!collision) return;
         grid->bot->direction = LEFT;
-        collision = checkCollision (grid, BOT);
-        if(!collision) return;
-        grid->bot->direction = RIGHT;
-        return;
-    }
-    if (grid->bot->direction == LEFT || grid->bot->direction == RIGHT){
-        if(!collision) return;
+        setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+        collisionIndicator = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+        if(collisionIndicator) grid->bot->direction = RIGHT;
+    } else if (grid->bot->direction == LEFT || grid->bot->direction == RIGHT){
         grid->bot->direction = UP;
-        collision = checkCollision (grid, BOT);
-        if(!collision) return;
-        grid->bot->direction = DOWN;
-        return;
+        setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+        collisionIndicator = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+        if(collisionIndicator) grid->bot->direction = DOWN;
     } 
-}*/
-
-
-int startGame(int n_lines, int n_columns) {
-    int jeu;
-    Grid* grid;
-
-    
-    viewInit();
-    
-    grid = initGrid(n_lines, n_columns);
-    jeu = playGame(grid);
-
-    endGame(grid);
-
-    return jeu;
 }
 
-int playGame(Grid* grid) {
-    int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot;
+static int playGame(int n_lines, int n_columns) {
+    int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot, scorePlayer, scoreBot;
     DIRECTIONS input;
     clock_t start, end;
-     unsigned long elapsed, remaining;
+    unsigned long elapsed, remaining;
+    Grid* grid;
+    scorePlayer = 0, scoreBot = 0;
+    while (scorePlayer != 3 && scoreBot != 3) {
+        grid = initGrid(n_lines, n_columns);
+        isOver = 0;
+        viewStart(grid);
+        updateViewScore(n_lines, scorePlayer, scoreBot);
+        while(!isOver) {
 
-    viewStart(grid);
+            input = grid->player->direction;
+            remainingTimePlayer = 100;
+            while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
+                remainingTimePlayer = getDirection(&input, remainingTimePlayer);
+            }
+            changeDirectionPlayer(grid, input);
+            collisionIndicator = moveRider (grid, grid->player, &grid->playerRoute);
+            if (collisionIndicator) isOver = 1;
+            viewUpdate(grid);
+            
+            
 
-
-    isOver = 0;
-    while(!isOver) {
-
-        input = grid->player->direction;
-        remainingTimePlayer = 200;
-        while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
-            remainingTimePlayer = getDirection(&input, remainingTimePlayer);
+            collisionIndicator = moveRider (grid, grid->bot, &grid->botRoute);
+            if (collisionIndicator) isOver = 2;
+            changeDirectionBot(grid);
+            viewUpdate(grid);
         }
-        changeDirectionPlayer(grid, input);
-        collisionIndicator = moveRider (grid, grid->player, &grid->playerRoute);
-        if (collisionIndicator) isOver = 1;
-        viewUpdate(grid);
-        
-        
+        freeGrid(grid);
+        if (isOver==1) scoreBot++;
+        if (isOver==2) scorePlayer++;
 
-        /*collision = moveRider (grid, BOT);
-        if (collision) end = 2;
-        changeDirectionBot(grid);*/
-        viewUpdate(grid);
     }
-    return isOver;
+    return scorePlayer;
 }
 
-void endGame(Grid* grid) {
-    freeGrid(grid);
+int startGame(int n_lines, int n_columns) {
+    int scorePlayer;
+    viewInit();
+    scorePlayer = playGame(n_lines, n_columns);
     viewCleanup();
+    return scorePlayer==3 ? 1 : 0;
 }

@@ -4,26 +4,29 @@
 #include "view.h"
 
 void viewInit() {
-    // Initialisation de ncurses
-    initscr();            // Démarre le mode ncurses
-    cbreak();             // Mode cbreak : on ne bufferise pas toute la ligne
-    noecho();             // N'affiche pas les caractères tapés
-    curs_set(0);          // Cache le curseur
-    keypad(stdscr, TRUE); // Permet l'utilisation des touches spéciales (flèches, etc.)
+    initscr();
+    cbreak();
+    noecho();
+    curs_set(0);
+    keypad(stdscr, TRUE);
 }
 
 void viewStart(Grid *grid){
+    int i;
+    int j;
+    int n_lines;
+    int n_columns;
+
+    n_lines = grid->n_lines;
+    n_columns = grid->n_columns;
 
     clear();
 
-    int n_lines = grid->n_lines;
-    int n_columns = grid->n_columns;
-
-    for (int i = 0; i < n_columns; i++) {
+    for (i = 0; i < n_columns; i++) {
         mvaddch(0, i, '-');
         mvaddch(n_lines - 1, i, '-');
     }
-    for (int j = 0; j < n_lines; j++) {
+    for (j = 0; j < n_lines; j++) {
         mvaddch(j, 0, '|');
         mvaddch(j, n_columns - 1, '|');
     }
@@ -31,12 +34,13 @@ void viewStart(Grid *grid){
     if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
     if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
 
-    // Rafraîchit l'écran pour montrer les modifications
     refresh();
 }
 
 void viewUpdate(Grid *grid) {
-    Dot *d = grid->playerRoute;
+    Dot *d;
+    
+    d = grid->playerRoute;
     if (d) mvaddch(d->pos_y, d->pos_x, 'o');
 
     d = grid->botRoute;
@@ -48,6 +52,14 @@ void viewUpdate(Grid *grid) {
     refresh();
 }
 
+void updateViewScore(int n_lines, int scorePlayer, int scoreBot) {
+    noecho();
+    mvprintw(n_lines+1, 0, "Player : %d", scorePlayer);
+    mvprintw(n_lines+2, 0, "Bot : %d", scoreBot);
+    refresh();
+}
+
 void viewCleanup() {
+    clear();
     endwin();
 }

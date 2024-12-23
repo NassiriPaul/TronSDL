@@ -60,7 +60,7 @@ void freeGrid(Grid* grid) {
 	free (grid);
 }
 
-static void setPresumedNextDirection(Rider* rider, int* next_x, int* next_y){
+void setPresumedNextDirection(Rider* rider, int* next_x, int* next_y){
 	/*Set presumed next positions*/
 	switch (rider->direction)
 	{
@@ -97,7 +97,7 @@ static int checkCollisionWithTrail(Route route, int pos_x, int pos_y) {
 int checkCollision (Grid* grid, int presumed_next_pos_x, int presumed_next_pos_y) {
 	if (!grid) {perror ("No grid allocated yet or NULL");return 1;}
 	if(( presumed_next_pos_x <= 0 || presumed_next_pos_y <= 0)) return 2;
-	if(( presumed_next_pos_x >= grid->n_columns || presumed_next_pos_y >= grid->n_lines)) return 2;
+	if(( presumed_next_pos_x >= grid->n_columns-1 || presumed_next_pos_y >= grid->n_lines-1)) return 2;
 	if(checkCollisionWithTrail(grid->playerRoute, presumed_next_pos_x, presumed_next_pos_y)) return 2;
 	if(checkCollisionWithTrail(grid->botRoute, presumed_next_pos_x, presumed_next_pos_y)) return 2;
 
