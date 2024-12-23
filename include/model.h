@@ -1,7 +1,6 @@
 #pragma once
 #include "types.h"
 
-// RIDER
 typedef struct {
 	int pos_x;
 	int pos_y;
@@ -12,7 +11,6 @@ typedef struct {
 Rider *initRider(int x, int y);
 void freeRider(Rider *r);
 
-//ROUTE
 typedef struct dot {
 	int pos_x;
     int pos_y;
@@ -23,7 +21,7 @@ typedef Dot* Route;
 Route updateRoute(Rider *rider, Route route);
 void freeRoute (Route r);
 
-// GRID
+/*GRID*/ 
 typedef struct {
 	int n_lines;
 	int n_columns;
@@ -47,7 +45,7 @@ Return possibility:
 	2 means the rider will hit the wall of the grid or a route
 	3 means the rider will hit the other rider
 */
-int checkCollision (Grid* grid, RIDERS movingRider);
+int checkCollision (Grid* grid, int presumed_next_position_x, int presumed_next_position_y);
 /*
 Move a rider in the grid toward a direction
 Return possibility:
@@ -56,4 +54,4 @@ Return possibility:
 	2 means the rider hit the wall of the grid or a route
 	3 means the rider hit the other rider
 */
-int moveRider (Grid* grid, RIDERS movingRider);
+int moveRider (Grid* grid,  Rider* rider, Route* route);
