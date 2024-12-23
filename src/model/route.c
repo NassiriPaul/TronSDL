@@ -23,7 +23,7 @@ Route updateRoute (Rider* rider, Route route) {
     
     // Initialiser les valeurs du nouveau Dot
     newDot->pos_x = rider->pos_x;
-	newDot->pos_y = rider->pos_y;
+    newDot->pos_y = rider->pos_y;
     newDot->nextDot = route; // Le nouveau Dot pointe vers le premier élément
     
     // Le nouveau Dot devient maintenant le premier de la liste
