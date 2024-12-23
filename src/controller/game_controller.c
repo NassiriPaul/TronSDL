@@ -22,23 +22,63 @@ static void changeDirectionPlayer(Grid* grid, DIRECTIONS direction) {
 }
 
 static void changeDirectionBot(Grid* grid) {
+    DIRECTIONS originalDirection;
 	int presumed_next_pos_x,  presumed_next_pos_y, collisionIndicator;
-    setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
-    collisionIndicator = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
-    if(!collisionIndicator) return;
-    if (grid->bot->direction == UP || grid->bot->direction == DOWN){
-        grid->bot->direction = LEFT;
-        setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
-        collisionIndicator = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
-        if(collisionIndicator) grid->bot->direction = RIGHT;
-    } else if (grid->bot->direction == LEFT || grid->bot->direction == RIGHT){
-        grid->bot->direction = UP;
-        setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
-        collisionIndicator = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
-        if(collisionIndicator) grid->bot->direction = DOWN;
-    } 
-}
+    int collision[4];
 
+    originalDirection = grid->bot->direction;
+
+    grid->bot->direction = UP;
+    setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+    collision[UP] = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+
+    grid->bot->direction = RIGHT;
+    setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+    collision[RIGHT] = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+
+    grid->bot->direction = DOWN;
+    setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+    collision[DOWN] = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+
+    grid->bot->direction = LEFT;
+    setPresumedNextDirection(grid->bot, &presumed_next_pos_x, &presumed_next_pos_y);
+    collision[LEFT] = checkCollision (grid, presumed_next_pos_x, presumed_next_pos_y);
+
+    switch (originalDirection) {
+        case UP:
+            if (collision[LEFT] && collision[RIGHT]) {grid->bot->direction = originalDirection;return;}
+            if (!collision[UP] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (collision[LEFT] && !collision[RIGHT]) {grid->bot->direction = RIGHT;return;}
+            if (!collision[LEFT] && collision[RIGHT]) {grid->bot->direction = LEFT;return;}
+            if (grid->n_columns-grid->bot->pos_x>grid->n_columns/2) {grid->bot->direction = RIGHT;return;}
+            grid->bot->direction = LEFT;
+            return;
+        case DOWN:
+            if (collision[LEFT] && collision[RIGHT]) {grid->bot->direction = originalDirection;return;}
+            if (!collision[DOWN] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (collision[LEFT] && !collision[RIGHT]) {grid->bot->direction = RIGHT;return;}
+            if (!collision[LEFT] && collision[RIGHT]) {grid->bot->direction = LEFT;return;}
+            if (grid->n_columns-grid->bot->pos_x>grid->n_columns/2) {grid->bot->direction = RIGHT;return;}
+            grid->bot->direction = LEFT;
+            return;
+        case LEFT:
+            if (collision[UP] && collision[DOWN]) {grid->bot->direction = originalDirection;return;}
+            if (!collision[LEFT] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (collision[UP] && !collision[DOWN]) {grid->bot->direction = DOWN;return;}
+            if (!collision[UP] && collision[DOWN]) {grid->bot->direction = UP;return;}
+            if (grid->n_lines-grid->bot->pos_y>grid->n_lines/2) {grid->bot->direction = DOWN;return;}
+            grid->bot->direction = UP;
+            return;
+        case RIGHT:
+            if (collision[UP] && collision[DOWN]) {grid->bot->direction = originalDirection;return;}
+            if (!collision[RIGHT] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (collision[UP] && !collision[DOWN]) {grid->bot->direction = DOWN;return;}
+            if (!collision[UP] && collision[DOWN]) {grid->bot->direction = UP;return;}
+            if (grid->n_lines-grid->bot->pos_y>grid->n_lines/2) {grid->bot->direction = DOWN;return;}
+            grid->bot->direction = UP;
+            return;
+    }
+}
 static int playGame(int n_lines, int n_columns) {
     int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot, scorePlayer, scoreBot;
     DIRECTIONS input;
