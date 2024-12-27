@@ -1,66 +1,103 @@
 #include "../../include/view.h"
 #include <curses.h>
 #include <stdlib.h>
+#include "view.h"
 
-/* Initialize the view with ncurses settings */
 void viewInit() {
     initscr();
     cbreak();
     noecho();
     curs_set(0);
+    start_color();
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(2, COLOR_BLUE, COLOR_BLACK);
+    init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(4, COLOR_CYAN, COLOR_BLACK);
     keypad(stdscr, TRUE);
+    
 }
 
-/* Draw the grid boundaries and initial positions of entities */
-void viewStart(Grid *grid) {
-    int i, j;
+void viewStart(Grid *grid, int scorePlayer, int scoreBot){
+    int i;
+    int j;
+    int n_lines;
+    int n_columns;
+    DIRECTIONS firstDirection;
 
-    if (!grid) return;
+    n_lines = grid->n_lines;
+    n_columns = grid->n_columns;
+
     clear();
-    for (i = 0; i < grid->n_columns; i++) 
-        mvaddch(grid->n_lines, i, '-');
 
-    for (j = 0; j < grid->n_lines; j++) 
-        mvaddch(j, grid->n_columns, '|');
+    for (i = 0; i < n_columns; i++) {
+        mvaddch(n_lines, i, '-');
+    }
+    for (j = 0; j < n_lines; j++) {
+        mvaddch(j, n_columns, '|');
+    }
 
-    if (grid->player) 
-        mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
-    if (grid->bot) 
-        mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
+    if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
+    if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
+
+    updateViewTurbos(grid->n_lines, grid->player->turbos);
+    updateViewScore(grid->n_lines, scorePlayer, scoreBot);
 
     refresh();
+    while (1) {
+        firstDirection = getch();
+        switch (firstDirection)
+        {
+        case KEY_UP: grid->player->direction = UP;return;
+        case KEY_RIGHT: grid->player->direction = RIGHT;return;
+        case KEY_DOWN: grid->player->direction = DOWN;return;
+        case KEY_LEFT: grid->player->direction = LEFT;return;
+        default:
+            break;
+        }
+    }
 }
 
-/* Update the positions of player and bot, and their routes */
 void viewUpdate(Grid *grid) {
     Dot *d;
-
-    if (!grid) return;
+    
     d = grid->playerRoute;
-    if (d) 
-        mvaddch(d->pos_y, d->pos_x, 'o');
+    if (d){
+        attron(COLOR_PAIR(3)); 
+        mvaddch(d->pos_y, d->pos_x, 'X');
+        attroff(COLOR_PAIR(3)); 
+    }
+
     d = grid->botRoute;
-    if (d) 
-        mvaddch(d->pos_y, d->pos_x, 'x');
-    if (grid->player) 
-        mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
-    if (grid->bot) 
-        mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
+    if (d){
+        attron(COLOR_PAIR(4)); 
+        mvaddch(d->pos_y, d->pos_x, 'X');
+        attroff(COLOR_PAIR(4)); 
+
+    }
+
+    attron(COLOR_PAIR(1));
+    mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
+    attroff(COLOR_PAIR(1));
+    attron(COLOR_PAIR(2));
+    mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
+    attroff(COLOR_PAIR(2));
 
     refresh();
 }
 
-/* Update the scores of the player and bot */
 void updateViewScore(int n_lines, int scorePlayer, int scoreBot) {
     noecho();
-    mvprintw(n_lines + 1, 0, "Player : %d", scorePlayer);
-    mvprintw(n_lines + 2, 0, "Bot : %d", scoreBot);
+    mvprintw(n_lines+3, 0, "Player : %d", scorePlayer);
+    mvprintw(n_lines+4, 0, "Bot : %d", scoreBot);
+    refresh();
+}
+void updateViewTurbos(int n_lines, int turbos) {
+    noecho();
+    mvprintw(n_lines+1, 0, "Turbos : %d", turbos);
     refresh();
 }
 
-/* Clean up the ncurses environment */
 void viewCleanup() {
     clear();
-    curs_set(1);
     endwin();
 }
