@@ -14,6 +14,7 @@ void viewInit() {
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
     init_pair(4, COLOR_CYAN, COLOR_BLACK);
     keypad(stdscr, TRUE);
+    
 }
 
 void viewStart(Grid *grid, int scorePlayer, int scoreBot){
@@ -38,7 +39,7 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
     if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
     if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
 
-    
+    updateViewTurbos(grid->n_lines, grid->player->turbos);
     updateViewScore(grid->n_lines, scorePlayer, scoreBot);
 
     refresh();
@@ -54,7 +55,6 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
             break;
         }
     }
-    
 }
 
 void viewUpdate(Grid *grid) {
@@ -87,8 +87,13 @@ void viewUpdate(Grid *grid) {
 
 void updateViewScore(int n_lines, int scorePlayer, int scoreBot) {
     noecho();
-    mvprintw(n_lines+1, 0, "Player : %d", scorePlayer);
-    mvprintw(n_lines+2, 0, "Bot : %d", scoreBot);
+    mvprintw(n_lines+3, 0, "Player : %d", scorePlayer);
+    mvprintw(n_lines+4, 0, "Bot : %d", scoreBot);
+    refresh();
+}
+void updateViewTurbos(int n_lines, int turbos) {
+    noecho();
+    mvprintw(n_lines+1, 0, "Turbos : %d", turbos);
     refresh();
 }
 

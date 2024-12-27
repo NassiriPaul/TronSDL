@@ -2,7 +2,7 @@
 #include "types.h"
 
 
-int getDirection(DIRECTIONS *direction, unsigned long ms)
+int getInput(int *input, unsigned long ms)
 {
     SDL_Event e;
     unsigned long start, now, elapsed, remaining;
@@ -25,10 +25,11 @@ int getDirection(DIRECTIONS *direction, unsigned long ms)
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
-                    case SDLK_UP:    *direction = UP;    break;
-                    case SDLK_RIGHT: *direction = RIGHT; break;
-                    case SDLK_DOWN:  *direction = DOWN;  break;
-                    case SDLK_LEFT:  *direction = LEFT;  break;
+                    case SDLK_UP:    *input = UP;    break;
+                    case SDLK_RIGHT: *input = RIGHT; break;
+                    case SDLK_DOWN:  *input = DOWN;  break;
+                    case SDLK_LEFT:  *input = LEFT;  break;
+                    case SDLK_t:  {*input = 5;  return 0;}
                 }
             }
         }
