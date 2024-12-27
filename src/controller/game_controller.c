@@ -80,12 +80,14 @@ static void changeDirectionBot(Grid* grid) {
     }
 }
 static int playGame(int n_lines, int n_columns) {
-    int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot, scorePlayer, scoreBot;
-    DIRECTIONS input;
+    int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot, scorePlayer, scoreBot, turboMovesLeft;
+    int input;
     clock_t start, end;
     unsigned long elapsed, remaining;
     Grid* grid;
-    scorePlayer = 0, scoreBot = 0;
+
+    scorePlayer = 0, scoreBot = 0, turboMovesLeft = 0;
+
     while (scorePlayer != 3 && scoreBot != 3) {
         grid = initGrid(n_lines, n_columns);
         isOver = 0;
@@ -93,21 +95,33 @@ static int playGame(int n_lines, int n_columns) {
         while(!isOver) {
 
             input = grid->player->direction;
-            remainingTimePlayer = 100;
+            remainingTimePlayer = turboMovesLeft == 0 ? 400 : 25 ;
             while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
-                remainingTimePlayer = getDirection(&input, remainingTimePlayer);
+                remainingTimePlayer = getInput(&input, remainingTimePlayer);
             }
-            changeDirectionPlayer(grid, input);
+            printw("INPUT : ((%d))", input);
+            if (input == 5){
+                
+                grid->player->turbos--;
+                turboMovesLeft+=20;
+            }
+
+            if (input != 5) changeDirectionPlayer(grid, input);
+
             collisionIndicator = moveRider (grid, grid->player, &grid->playerRoute);
             if (collisionIndicator) isOver = 1;
             viewUpdate(grid);
             
             
+            if (turboMovesLeft%16==0){
+                collisionIndicator = moveRider (grid, grid->bot, &grid->botRoute);
+                if (collisionIndicator) isOver = 2;
+                changeDirectionBot(grid);
+                viewUpdate(grid);
+            }
+            
+            if (turboMovesLeft>0) {turboMovesLeft--;printw("%d", turboMovesLeft);}
 
-            collisionIndicator = moveRider (grid, grid->bot, &grid->botRoute);
-            if (collisionIndicator) isOver = 2;
-            changeDirectionBot(grid);
-            viewUpdate(grid);
         }
         freeGrid(grid);
         if (isOver==1) scoreBot++;
