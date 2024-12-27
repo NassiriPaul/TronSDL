@@ -30,7 +30,7 @@ void viewInit()
 
     window = SDL_CreateWindow("Tron SDL",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              800, 800, SDL_WINDOW_SHOWN);
+                              800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -52,12 +52,12 @@ void viewInit()
 }
 
 /* Draws the initial grid border and draws the player/bot in their starting positions */
-void viewStart(Grid *grid, int scorePlayer, int scoreBot)
+void viewStart(Grid *grid)
 {
-    SDL_Event event;
-    SDL_Rect rect;
+    int n_lines    = grid->n_lines;
+    int n_columns  = grid->n_columns;
     CELL_SIZE = 800/grid->n_columns;
-    SDL_SetWindowSize(window, grid->n_columns*CELL_SIZE, (grid->n_lines*CELL_SIZE+48));
+    SDL_SetWindowSize(window, n_columns*CELL_SIZE, (n_lines*CELL_SIZE + 50));
 
     /* Clear to black */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -69,26 +69,27 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot)
     /* Top line */
     SDL_RenderDrawLine(renderer,
         0, 0,
-        grid->n_columns * CELL_SIZE, 0
+        n_columns * CELL_SIZE, 0
     );
     /* Bottom line */
     SDL_RenderDrawLine(renderer,
-        0, grid->n_lines * CELL_SIZE,
-        grid->n_columns * CELL_SIZE, grid->n_lines * CELL_SIZE
+        0, n_lines * CELL_SIZE,
+        n_columns * CELL_SIZE, n_lines * CELL_SIZE
     );
     /* Left line */
     SDL_RenderDrawLine(renderer,
         0, 0,
-        0, grid->n_lines * CELL_SIZE
+        0, n_lines * CELL_SIZE
     );
     /* Right line */
     SDL_RenderDrawLine(renderer,
-        grid->n_columns * CELL_SIZE, 0,
-        grid->n_columns * CELL_SIZE, grid->n_lines * CELL_SIZE
+        n_columns * CELL_SIZE, 0,
+        n_columns * CELL_SIZE, n_lines * CELL_SIZE
     );
 
     /* Draw player as a green square */
     if (grid->player) {
+        SDL_Rect rect;
         rect.x = grid->player->pos_x * CELL_SIZE;
         rect.y = grid->player->pos_y * CELL_SIZE;
         rect.w = CELL_SIZE;
@@ -108,9 +109,8 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot)
         SDL_RenderFillRect(renderer, &rect);
     }
 
-    updateViewScore(grid->n_lines, scorePlayer, scoreBot);
     SDL_RenderPresent(renderer);
-    
+    SDL_Event event;
     
     while (1) {
         SDL_WaitEvent(&event);
@@ -136,7 +136,7 @@ void viewUpdate(Grid *grid)
         r.y = d->pos_y * CELL_SIZE;
         r.w = CELL_SIZE;
         r.h = CELL_SIZE;
-        SDL_SetRenderDrawColor(renderer, 0, 127, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 128, 0, 255);
         SDL_RenderFillRect(renderer, &r);
     }
 
@@ -148,7 +148,7 @@ void viewUpdate(Grid *grid)
         r.y = d->pos_y * CELL_SIZE;
         r.w = CELL_SIZE;
         r.h = CELL_SIZE;
-        SDL_SetRenderDrawColor(renderer, 127, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 128, 0, 0, 255);
         SDL_RenderFillRect(renderer, &r);
     }
 
@@ -181,35 +181,24 @@ void updateViewScore(int n_lines, int scorePlayer, int scoreBot)
 {
     /* Create a text buffer like "Player: 5 | Bot: 2" */
     char buffer[64];
-    SDL_Color color;
-    TTF_Font *font;
-    SDL_Surface *textSurface;
-    SDL_Texture *textTexture;
-    SDL_Rect destRect;
-
-
     snprintf(buffer, sizeof(buffer), "Player: %d - Bot: %d", scorePlayer, scoreBot);
 
     /* Choose a text color (white) */
-    color.r = 255;
-    color.g = 255;
-    color.b = 255;
-    color.a = 255;
+    SDL_Color color = {255, 255, 255, 255};
 
     /* Render text to an SDL_Surface (using SDL_ttf) */
-    font = TTF_OpenFont("font.ttf", 24);
+    TTF_Font *font = TTF_OpenFont("font.ttf", 24);
     if (!font) {
         fprintf(stderr, "TTF_OpenFont error: %s\n", TTF_GetError());
     }
-    
-    textSurface = TTF_RenderText_Blended(font, buffer, color);
+    SDL_Surface *textSurface = TTF_RenderText_Blended(font, buffer, color);
     if (!textSurface) {
         fprintf(stderr, "TTF_RenderText_Blended error: %s\n", TTF_GetError());
         return;
     }
 
     /* Convert that surface to an SDL_Texture */
-    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
     if (!textTexture) {
         fprintf(stderr, "SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
         SDL_FreeSurface(textSurface);
@@ -219,7 +208,7 @@ void updateViewScore(int n_lines, int scorePlayer, int scoreBot)
     /* Decide where on-screen to render. For example, just below the grid:
        x = 10, y = n_lines*CELL_SIZE + 10
     */
-    
+    SDL_Rect destRect;
     destRect.x = 10;
     destRect.y = n_lines * CELL_SIZE + 10;
     destRect.w = textSurface->w;  /* The width of the text */
