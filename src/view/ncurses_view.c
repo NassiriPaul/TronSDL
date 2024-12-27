@@ -113,8 +113,13 @@ void viewUpdate(Grid *grid) {
 
 void updateViewScore(int n_lines, int scorePlayer, int scoreBot) {
     noecho();
-    mvprintw(n_lines+1, 0, "Player : %d", scorePlayer);
-    mvprintw(n_lines+2, 0, "Bot : %d", scoreBot);
+    mvprintw(n_lines+3, 0, "Player : %d", scorePlayer);
+    mvprintw(n_lines+4, 0, "Bot : %d", scoreBot);
+    refresh();
+}
+void updateViewTurbos(int n_lines, int turbos) {
+    noecho();
+    mvprintw(n_lines+1, 0, "Turbos : %d", turbos);
     refresh();
 }
 
