@@ -29,12 +29,10 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
     clear();
 
     for (i = 0; i < n_columns; i++) {
-        mvaddch(0, i, '-');
-        mvaddch(n_lines - 1, i, '-');
+        mvaddch(n_lines, i, '-');
     }
     for (j = 0; j < n_lines; j++) {
-        mvaddch(j, 0, '|');
-        mvaddch(j, n_columns - 1, '|');
+        mvaddch(j, n_columns, '|');
     }
 
     if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
