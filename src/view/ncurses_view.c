@@ -14,12 +14,41 @@ void viewInit() {
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
     init_pair(4, COLOR_CYAN, COLOR_BLACK);
     keypad(stdscr, TRUE);
-    
 }
 
+void viewMap(int n_lines, int n_columns){
+    int i, j;
+    for (i = 0; i < n_columns; i++) {
+        mvaddch(n_lines, i, '-');
+    }
+    for (j = 0; j < n_lines; j++) {
+        mvaddch(j, n_columns, '|');
+    }
+}
+
+void viewMenu(Grid *grid){
+    int n_lines;
+    int n_columns;
+
+    n_lines = grid->n_lines;
+    n_columns = grid->n_columns;
+    
+    clear();
+
+    viewMap(n_lines,n_columns);
+    mvprintw(3, 3, "Welcome to the Game Arena !");
+    mvprintw(5, 3, "Directional keys :");
+    mvprintw(7, 3, "UP      : up arrow");
+    mvprintw(8, 3, "RIGHT   : right arrow");
+    mvprintw(9, 3, "LEFT    : left arrow");
+    mvprintw(10, 3,"DOWN    : down arrow");
+    mvprintw(12, 3,"Press any key to continue");
+    getch();
+    refresh();
+}
+
+
 void viewStart(Grid *grid, int scorePlayer, int scoreBot){
-    int i;
-    int j;
     int n_lines;
     int n_columns;
     DIRECTIONS firstDirection;
@@ -29,17 +58,13 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
 
     clear();
 
-    for (i = 0; i < n_columns; i++) {
-        mvaddch(n_lines, i, '-');
-    }
-    for (j = 0; j < n_lines; j++) {
-        mvaddch(j, n_columns, '|');
-    }
+    viewMap(n_lines,n_columns);
+    
 
     if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
     if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
 
-    updateViewTurbos(grid->n_lines, grid->player->turbos);
+    
     updateViewScore(grid->n_lines, scorePlayer, scoreBot);
 
     refresh();
@@ -55,6 +80,7 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
             break;
         }
     }
+    
 }
 
 void viewUpdate(Grid *grid) {
@@ -87,13 +113,8 @@ void viewUpdate(Grid *grid) {
 
 void updateViewScore(int n_lines, int scorePlayer, int scoreBot) {
     noecho();
-    mvprintw(n_lines+3, 0, "Player : %d", scorePlayer);
-    mvprintw(n_lines+4, 0, "Bot : %d", scoreBot);
-    refresh();
-}
-void updateViewTurbos(int n_lines, int turbos) {
-    noecho();
-    mvprintw(n_lines+1, 0, "Turbos : %d", turbos);
+    mvprintw(n_lines+1, 0, "Player : %d", scorePlayer);
+    mvprintw(n_lines+2, 0, "Bot : %d", scoreBot);
     refresh();
 }
 
