@@ -47,34 +47,34 @@ static void changeDirectionBot(Grid* grid) {
     switch (originalDirection) {
         case UP:
             if (collision[LEFT] && collision[RIGHT]) {grid->bot->direction = originalDirection;return;}
-            if (!collision[UP] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (!collision[UP] && rand()%20<=18) {grid->bot->direction = originalDirection;return;}
             if (collision[LEFT] && !collision[RIGHT]) {grid->bot->direction = RIGHT;return;}
             if (!collision[LEFT] && collision[RIGHT]) {grid->bot->direction = LEFT;return;}
-            if (grid->n_columns-grid->bot->pos_x>grid->n_columns/2) {grid->bot->direction = RIGHT;return;}
+            if (rand()%2==0) {grid->bot->direction = RIGHT;return;}
             grid->bot->direction = LEFT;
             return;
         case DOWN:
             if (collision[LEFT] && collision[RIGHT]) {grid->bot->direction = originalDirection;return;}
-            if (!collision[DOWN] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (!collision[DOWN] && rand()%20<=18) {grid->bot->direction = originalDirection;return;}
             if (collision[LEFT] && !collision[RIGHT]) {grid->bot->direction = RIGHT;return;}
             if (!collision[LEFT] && collision[RIGHT]) {grid->bot->direction = LEFT;return;}
-            if (grid->n_columns-grid->bot->pos_x>grid->n_columns/2) {grid->bot->direction = RIGHT;return;}
+            if (rand()%2==0)  {grid->bot->direction = RIGHT;return;}
             grid->bot->direction = LEFT;
             return;
         case LEFT:
             if (collision[UP] && collision[DOWN]) {grid->bot->direction = originalDirection;return;}
-            if (!collision[LEFT] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (!collision[LEFT] && rand()%20<=18) {grid->bot->direction = originalDirection;return;}
             if (collision[UP] && !collision[DOWN]) {grid->bot->direction = DOWN;return;}
             if (!collision[UP] && collision[DOWN]) {grid->bot->direction = UP;return;}
-            if (grid->n_lines-grid->bot->pos_y>grid->n_lines/2) {grid->bot->direction = DOWN;return;}
+            if (rand()%2==0)  {grid->bot->direction = DOWN;return;}
             grid->bot->direction = UP;
             return;
         case RIGHT:
             if (collision[UP] && collision[DOWN]) {grid->bot->direction = originalDirection;return;}
-            if (!collision[RIGHT] && rand()%10<=8) {grid->bot->direction = originalDirection;return;}
+            if (!collision[RIGHT] && rand()%20<=18) {grid->bot->direction = originalDirection;return;}
             if (collision[UP] && !collision[DOWN]) {grid->bot->direction = DOWN;return;}
             if (!collision[UP] && collision[DOWN]) {grid->bot->direction = UP;return;}
-            if (grid->n_lines-grid->bot->pos_y>grid->n_lines/2) {grid->bot->direction = DOWN;return;}
+            if (rand()%2==0) {grid->bot->direction = DOWN;return;}
             grid->bot->direction = UP;
             return;
     }
@@ -89,8 +89,7 @@ static int playGame(int n_lines, int n_columns) {
     while (scorePlayer != 3 && scoreBot != 3) {
         grid = initGrid(n_lines, n_columns);
         isOver = 0;
-        viewStart(grid);
-        updateViewScore(n_lines, scorePlayer, scoreBot);
+        viewStart(grid, scorePlayer, scoreBot);
         while(!isOver) {
 
             input = grid->player->direction;

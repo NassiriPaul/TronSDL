@@ -11,11 +11,12 @@ void viewInit() {
     keypad(stdscr, TRUE);
 }
 
-void viewStart(Grid *grid){
+void viewStart(Grid *grid, int scorePlayer, int scoreBot){
     int i;
     int j;
     int n_lines;
     int n_columns;
+    DIRECTIONS firstDirection;
 
     n_lines = grid->n_lines;
     n_columns = grid->n_columns;
@@ -34,7 +35,23 @@ void viewStart(Grid *grid){
     if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
     if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
 
+    
+    updateViewScore(grid->n_lines, scorePlayer, scoreBot);
+
     refresh();
+    while (1) {
+        firstDirection = getch();
+        switch (firstDirection)
+        {
+        case KEY_UP: grid->player->direction = UP;return;
+        case KEY_RIGHT: grid->player->direction = RIGHT;return;
+        case KEY_DOWN: grid->player->direction = DOWN;return;
+        case KEY_LEFT: grid->player->direction = LEFT;return;
+        default:
+            break;
+        }
+    }
+    
 }
 
 void viewUpdate(Grid *grid) {
@@ -48,7 +65,6 @@ void viewUpdate(Grid *grid) {
 
     mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
     mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
-
     refresh();
 }
 
