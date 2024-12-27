@@ -8,6 +8,11 @@ void viewInit() {
     cbreak();
     noecho();
     curs_set(0);
+    start_color();
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(2, COLOR_BLUE, COLOR_BLACK);
+    init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(4, COLOR_CYAN, COLOR_BLACK);
     keypad(stdscr, TRUE);
 }
 
@@ -32,8 +37,8 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
         mvaddch(j, n_columns - 1, '|');
     }
 
-    if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
-    if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
+    if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
+    if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
 
     
     updateViewScore(grid->n_lines, scorePlayer, scoreBot);
@@ -58,13 +63,27 @@ void viewUpdate(Grid *grid) {
     Dot *d;
     
     d = grid->playerRoute;
-    if (d) mvaddch(d->pos_y, d->pos_x, 'o');
+    if (d){
+        attron(COLOR_PAIR(3)); 
+        mvaddch(d->pos_y, d->pos_x, 'X');
+        attroff(COLOR_PAIR(3)); 
+    }
 
     d = grid->botRoute;
-    if (d) mvaddch(d->pos_y, d->pos_x, 'x'); 
+    if (d){
+        attron(COLOR_PAIR(4)); 
+        mvaddch(d->pos_y, d->pos_x, 'X');
+        attroff(COLOR_PAIR(4)); 
 
-    mvaddch(grid->player->pos_y, grid->player->pos_x, 'P');
-    mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'B');
+    }
+
+    attron(COLOR_PAIR(1));
+    mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
+    attroff(COLOR_PAIR(1));
+    attron(COLOR_PAIR(2));
+    mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
+    attroff(COLOR_PAIR(2));
+
     refresh();
 }
 
