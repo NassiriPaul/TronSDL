@@ -94,6 +94,7 @@ static int playGame(int n_lines, int n_columns) {
         isOver = 0;
         turboMovesLeft = 0;
         viewStart(grid, scorePlayer, scoreBot);
+        if (grid->player->direction==5){scoreBot =3; continue;}
         while(!isOver) {
 
             input = grid->player->direction;
@@ -101,10 +102,11 @@ static int playGame(int n_lines, int n_columns) {
             while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
                 remainingTimePlayer = getInput(&input, remainingTimePlayer);
             }
-
+            if (input==6) {scoreBot =3; break;}
             if (input == 5 && turboMovesLeft == 0 && grid->player->turbos>0){
                 grid->player->turbos--;
                 turboMovesLeft+=8;
+                updateViewTurbos(grid->n_lines, grid->player->turbos);
             } else  if (input != 5) changeDirectionPlayer(grid, input);
 
 

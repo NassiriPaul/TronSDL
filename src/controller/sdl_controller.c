@@ -32,9 +32,9 @@ int getInput(int *input, unsigned long ms)
                     case SDLK_t:  {*input = 5;  return 0;}
                 }
             }
+            if (e.type==SDL_WINDOWEVENT && e.window.event==SDL_WINDOWEVENT_CLOSE) {*input = 6;  return 0;}
+
         }
-
-
         /* Briefly pause to avoid spinning the CPU at 100%. */
         SDL_Delay(1);
     }
