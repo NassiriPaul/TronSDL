@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
-#include <sys/select.h> /* select()       */
-
 
 void sleep_ms(int milliseconds)
 {
