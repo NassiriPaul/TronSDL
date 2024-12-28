@@ -10,6 +10,7 @@ void viewInit();
 /**
  * @brief Show the menu ( before the first round )
  * Will show the keys and wait for a key being press
+ * @return an integer for the portability with SDL
  */
 int viewMenu(int n_lines, int n_columns);
 
