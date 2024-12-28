@@ -53,12 +53,11 @@ void printGrid (Grid* grid){
 	printf("Bot position : (%d, %d)\n", grid->bot->pos_x, grid->bot->pos_y);
 }
 
-void freeGrid(Grid* grid) {
+void freeRun(Grid* grid) {
 	freeRider (grid->player);
 	freeRider (grid->bot);
 	freeRoute (grid->playerRoute);
 	freeRoute (grid->botRoute);
-	free (grid);
 }
 
 void setPresumedNextDirection(Rider* rider, int* next_x, int* next_y){
