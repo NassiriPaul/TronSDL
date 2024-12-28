@@ -1,22 +1,14 @@
 #include <SDL2/SDL.h>
 #include "types.h"
 
-/**
- * Get the player's direction within a specified timeout (in tenths of a second).
- * @param direction Pointer to the current direction of the player.
- * @param timeout Timeout in tenths of a second to capture input.
- * @return Remaining time in tenths of a second after user input or timeout.
- */
-int getInput(int* direction, unsigned long ms)
+int getInput(int* input, unsigned long ms)
 {
-    SDL_Event event;
+    SDL_Event event; /* to store the user input , then will be cast in input*/
     unsigned long start, now, elapsed, remaining;
 
-    /* Record the start time in milliseconds */
     start = SDL_GetTicks();
 
     while (1) {
-        /* How long has elapsed? */
         now = SDL_GetTicks();
         elapsed = now - start;
 
@@ -30,14 +22,14 @@ int getInput(int* direction, unsigned long ms)
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
-                    case SDLK_UP:    *direction = UP;    break;
-                    case SDLK_RIGHT: *direction = RIGHT; break;
-                    case SDLK_DOWN:  *direction = DOWN;  break;
-                    case SDLK_LEFT:  *direction = LEFT;  break;
-                    case SDLK_t:  *direction = 5;  break;
+                    case SDLK_UP:    *input = UP;    break;
+                    case SDLK_RIGHT: *input = RIGHT; break;
+                    case SDLK_DOWN:  *input = DOWN;  break;
+                    case SDLK_LEFT:  *input = LEFT;  break;
+                    case SDLK_t:  *input = 5;  break;
                 }
             }
-            if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) *direction = 6;
+            if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) *input = 6;
             
         }
 
@@ -45,7 +37,7 @@ int getInput(int* direction, unsigned long ms)
         SDL_Delay(1);
     }
 
-    /* Compute how many tenths of a second remain */
+    /* constraint the time */
     remaining = (ms - elapsed);
     if (remaining < 0) {
         remaining = 0; /* Ensure no negative remaining time */
