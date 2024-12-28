@@ -123,12 +123,12 @@ static int playGame(int n_lines, int n_columns) {
             viewUpdate(grid);
 
         }
-        /*freeGrid(grid);*/
+        freeRun(grid);
         if (isOver==1) scoreBot++;
         if (isOver==2) scorePlayer++;
 
     }
-    freeGrid(grid);
+    free(grid);
     return scorePlayer;
 }
 
