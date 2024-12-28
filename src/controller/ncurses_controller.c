@@ -55,7 +55,6 @@ int getInput(int* direction, unsigned long ms)
             break;
         case 116:  /*Touche t*/
             *direction = 5;  
-            return 0;
             break;
             
     }
