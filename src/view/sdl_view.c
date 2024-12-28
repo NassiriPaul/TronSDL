@@ -57,7 +57,7 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot)
     SDL_Event event;
     SDL_Rect rect;
     CELL_SIZE = 800/grid->n_columns;
-    SDL_SetWindowSize(window, grid->n_columns*CELL_SIZE, (grid->n_lines*CELL_SIZE+48));
+    SDL_SetWindowSize(window, grid->n_columns*CELL_SIZE, (grid->n_lines*CELL_SIZE+24*4));
 
     /* Clear to black */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -107,7 +107,7 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot)
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  /* red */
         SDL_RenderFillRect(renderer, &rect);
     }
-
+    updateViewTurbos(grid->n_lines, grid->player->turbos);
     updateViewScore(grid->n_lines, scorePlayer, scoreBot);
     SDL_RenderPresent(renderer);
     
@@ -120,8 +120,10 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot)
             if (SDLK_LEFT == event.key.keysym.sym) {grid->player->direction = LEFT;    break;}
             if (SDLK_DOWN == event.key.keysym.sym) {grid->player->direction = DOWN;    break;}
         }
+        if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) grid->player->direction = 5;
     }
 }
+
 
 /* Draws the newest positions of player and bot, plus their routes. */
 void viewUpdate(Grid *grid)
@@ -177,6 +179,161 @@ void viewUpdate(Grid *grid)
     SDL_RenderPresent(renderer);
 }
 
+void viewMenu(){
+    char buffer[64];
+    SDL_Color color;
+    TTF_Font *font;
+    SDL_Surface *textSurface;
+    SDL_Texture *textTexture;
+    SDL_Rect destRect;
+    SDL_Rect clearRect; 
+
+    /* Choisir une couleur de texte (blanc) */
+    color.r = 255;
+    color.g = 255;
+    color.b = 255;
+    color.a = 255;
+
+    /* Charger la police */
+    font = TTF_OpenFont("font.ttf", 24);
+    if (!font) {
+        fprintf(stderr, "TTF_OpenFont error: %s\n", TTF_GetError());
+        return;
+    }
+
+    /* Tableau des lignes à afficher */
+    const char *lines[] = {
+        "Welcome to the Game Arena !",
+        "Directional keys :",
+        "UP      : up arrow",
+        "RIGHT   : right arrow",
+        "LEFT    : left arrow",
+        "DOWN    : down arrow",
+        "Press any key to continue"
+    }; 
+
+    /* Rendre le texte dans une surface SDL */
+    for (int i = 0; i < 7; i++) {
+        snprintf(buffer, sizeof(buffer), "%s", lines[i]);
+        textSurface = TTF_RenderText_Blended(font, buffer, color);
+        if (!textSurface) {
+            fprintf(stderr, "TTF_RenderText_Blended error: %s\n", TTF_GetError());
+            TTF_CloseFont(font);
+            return;
+        }
+
+        /* Convertir la surface en texture */
+        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (!textTexture) {
+            fprintf(stderr, "SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
+            SDL_FreeSurface(textSurface);
+            TTF_CloseFont(font);
+            return;
+        }
+
+        /* Définir où afficher le texte */
+        destRect.x = 10;
+        destRect.y = 10 * 30 + i * 40; 
+        destRect.w = textSurface->w;
+        destRect.h = textSurface->h;
+
+        /* Définir un rectangle d'effacement plus grand que l'ancien texte */
+        clearRect.x = destRect.x - 5; 
+        clearRect.y = destRect.y - 5;
+        clearRect.w = textSurface->w+50;
+        clearRect.h = textSurface->h+20;
+
+        /* Effacer la zone où le texte sera rendu */
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &clearRect);
+
+        /* Libérer la surface */
+        SDL_FreeSurface(textSurface);
+
+        /* Copier la texture dans le renderer */
+        SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+
+        /* Détruire la texture une fois dessinée */
+        SDL_DestroyTexture(textTexture);
+
+    }
+
+    /* Libérer la police */
+    TTF_CloseFont(font);
+}
+
+void updateViewTurbos(int n_lines, int turbos) 
+{
+    char buffer[64];
+    SDL_Color color;
+    TTF_Font *font;
+    SDL_Surface *textSurface;
+    SDL_Texture *textTexture;
+    SDL_Rect destRect;
+    SDL_Rect clearRect; 
+
+    snprintf(buffer, sizeof(buffer), "Turbos : %d", turbos);
+
+    /* Choisir une couleur de texte (blanc) */
+    color.r = 255;
+    color.g = 255;
+    color.b = 255;
+    color.a = 255;
+
+    /* Charger la police */
+    font = TTF_OpenFont("font.ttf", 24);
+    if (!font) {
+        fprintf(stderr, "TTF_OpenFont error: %s\n", TTF_GetError());
+        return;
+    }
+    
+    /* Rendre le texte dans une surface SDL */
+    textSurface = TTF_RenderText_Blended(font, buffer, color);
+    if (!textSurface) {
+        fprintf(stderr, "TTF_RenderText_Blended error: %s\n", TTF_GetError());
+        TTF_CloseFont(font);
+        return;
+    }
+
+    /* Convertir la surface en texture */
+    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (!textTexture) {
+        fprintf(stderr, "SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
+        SDL_FreeSurface(textSurface);
+        TTF_CloseFont(font);
+        return;
+    }
+
+    /* Définir où afficher le texte */
+    destRect.x = 10;
+    destRect.y = n_lines * CELL_SIZE + 10;
+    destRect.w = textSurface->w;
+    destRect.h = textSurface->h;
+
+    /* Définir un rectangle d'effacement plus grand que l'ancien texte */
+    clearRect.x = destRect.x - 5; 
+    clearRect.y = destRect.y - 5;
+    clearRect.w = textSurface->w+50;
+    clearRect.h = textSurface->h+20;
+
+    /* Effacer la zone où le texte sera rendu */
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &clearRect);
+
+    /* Libérer la surface */
+    SDL_FreeSurface(textSurface);
+
+    /* Copier la texture dans le renderer */
+    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+
+    /* Détruire la texture une fois dessinée */
+    SDL_DestroyTexture(textTexture);
+
+    /* Libérer la police */
+    TTF_CloseFont(font);
+}
+
+
 void updateViewScore(int n_lines, int scorePlayer, int scoreBot)
 {
     /* Create a text buffer like "Player: 5 | Bot: 2" */
@@ -221,7 +378,7 @@ void updateViewScore(int n_lines, int scorePlayer, int scoreBot)
     */
     
     destRect.x = 10;
-    destRect.y = n_lines * CELL_SIZE + 10;
+    destRect.y = (n_lines+3) * CELL_SIZE;
     destRect.w = textSurface->w;  /* The width of the text */
     destRect.h = textSurface->h;  /* The height of the text */
 
@@ -233,6 +390,9 @@ void updateViewScore(int n_lines, int scorePlayer, int scoreBot)
 
     /* Destroy the texture once we're done drawing */
     SDL_DestroyTexture(textTexture);
+
+    /* Destroy the font*/
+    TTF_CloseFont(font);
 
     /* If you want it immediately visible, call SDL_RenderPresent(renderer);
        But usually you do that once at the end of your frame update.
