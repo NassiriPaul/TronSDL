@@ -4,16 +4,17 @@
 #include "view.h"
 
 void viewInit() {
-    initscr();
-    cbreak();
-    noecho();
-    curs_set(0);
-    start_color();
+    initscr(); /* start ncurses */
+    cbreak(); /* no need to press enter */
+    noecho(); /* do not echo input */
+    curs_set(0); /* hide the cursor */
+    start_color(); /* enable color usage*/
+    /* create paire of color (foreground, background ) */
     init_pair(1, COLOR_RED, COLOR_BLACK);
     init_pair(2, COLOR_BLUE, COLOR_BLACK);
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
     init_pair(4, COLOR_CYAN, COLOR_BLACK);
-    keypad(stdscr, TRUE);
+    keypad(stdscr, TRUE); /* allow arrows key */
 }
 
 void viewMap(int n_lines, int n_columns){
@@ -56,11 +57,10 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot){
 
     viewMap(n_lines,n_columns);
     
-
     if (grid->player) mvaddch(grid->player->pos_y, grid->player->pos_x, 'O');
     if (grid->bot) mvaddch(grid->bot->pos_y, grid->bot->pos_x, 'O');
 
-    
+    updateViewTurbos(grid->n_lines, grid->player->turbos);
     updateViewScore(grid->n_lines, scorePlayer, scoreBot);
 
     refresh();
