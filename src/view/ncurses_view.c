@@ -27,10 +27,11 @@ void viewMap(int n_lines, int n_columns){
     }
 }
 
-void viewMenu(Grid* grid){
+int viewMenu(int n_lines, int n_columns){
+    
     clear();
 
-    viewMap(grid->n_lines,grid->n_columns);
+    viewMap(n_lines,n_columns);
     mvprintw(3, 3, "Welcome to the Game Arena !");
     mvprintw(5, 3, "Directional keys :");
     mvprintw(7, 3, "UP      : up arrow");
@@ -39,8 +40,8 @@ void viewMenu(Grid* grid){
     mvprintw(10, 3,"DOWN    : down arrow");
     mvprintw(12, 3,"Press any key to continue");
     getch();
-    clear();
     refresh();
+    return 0;
 }
 
 
