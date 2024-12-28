@@ -17,8 +17,6 @@ void newRun(Grid* grid, int n_lines, int n_columns){
 	grid->player = initRider((n_columns*2)/3, n_lines/2);
 	grid->bot = initRider(n_columns/3, n_lines/2);
 
-	grid->playerRoute = (Route) malloc (sizeof(Dot));
-	grid->botRoute = (Route) malloc (sizeof(Dot));
 	grid->playerRoute = grid->botRoute = NULL;
 }
 
