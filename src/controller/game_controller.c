@@ -84,17 +84,19 @@ static int playGame(int n_lines, int n_columns) {
     unsigned long elapsed, remaining;
     Grid* grid;
     int i;
-
+    
     scorePlayer = 0, scoreBot = 0;
-
+    grid = initGrid(n_lines, n_columns);
+    viewMenu(n_lines, n_columns);
+    /*freeGrid(grid);*/
     while (scorePlayer != 3 && scoreBot != 3) {
-        grid = initGrid(n_lines, n_columns);
+        newRun(grid,n_lines, n_columns);
+        /*grid = initGrid(n_lines, n_columns);*/
         isOver = 0;
         turboMovesLeft = 0;
         viewStart(grid, scorePlayer, scoreBot);
         if (grid->player->direction==5){scoreBot =3; continue;}
         while(!isOver) {
-
             input = grid->player->direction;
             remainingTimePlayer = 100;
             while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
@@ -121,11 +123,12 @@ static int playGame(int n_lines, int n_columns) {
             viewUpdate(grid);
 
         }
-        freeGrid(grid);
         if (isOver==1) scoreBot++;
         if (isOver==2) scorePlayer++;
+        freeRun(grid);
 
     }
+    free(grid);
     return scorePlayer;
 }
 
