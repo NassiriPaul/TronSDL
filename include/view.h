@@ -11,7 +11,7 @@ void viewInit();
  * @brief Show the menu ( before the first round )
  * Will show the keys and wait for a key being press
  */
-void viewMenu(int n_lines, int n_columns);
+void viewMenu(Grid* grid);
 
 /**
  * @brief Set the UI to what it should look like before a round start and wait for a direction to start the round
