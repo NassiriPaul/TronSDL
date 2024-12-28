@@ -52,7 +52,7 @@ void viewInit()
 }
 
 
-void viewMenu(int l, int c){
+int viewMenu(int n_lines, int n_columns){
     const char *lines[7];
     char buffer[64];
     int i;
@@ -66,7 +66,7 @@ void viewMenu(int l, int c){
     SDL_Rect clearRect; 
     SDL_Event event;
 
-    /* Choisir une couleur de texte (blanc) */
+    /* Choose a font color (white) */
     white.r = 255;
     white.g = 255;
     white.b = 255;
@@ -82,14 +82,14 @@ void viewMenu(int l, int c){
     red.b = 0;
     red.a = 255;
 
-    /* Charger la police */
+    /* Load the font */
     font = TTF_OpenFont("font.ttf", 24);
     if (!font) {
         fprintf(stderr, "TTF_OpenFont error: %s\n", TTF_GetError());
-        return;
+        return 1;
     }
 
-    /* Tableau des lignes à afficher */
+    /* lignes to print */
     lines[0] = "Welcome to the Game Arena !";
     lines[1] = "Directional keys :";
     lines[2] = "UP : up arrow";
@@ -98,116 +98,61 @@ void viewMenu(int l, int c){
     lines[5] = "DOWN : down arrow";
     lines[6] = "Press any key to continue";
 
-    snprintf(buffer, sizeof(buffer), "%s", lines[0]);
-    textSurface = TTF_RenderText_Blended(font, buffer, cyan);
-    if (!textSurface) {
-        fprintf(stderr, "TTF_RenderText_Blended error: %s\n", TTF_GetError());
-        TTF_CloseFont(font);
-        return;
-    }
-
-    /* Convertir la surface en texture */
-    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (!textTexture) {
-        fprintf(stderr, "SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
-        SDL_FreeSurface(textSurface);
-        TTF_CloseFont(font);
-        return;
-    }
-
-    /* Définir où afficher le texte */
-    destRect.x = 50;
-    destRect.y = 30 ; 
-    destRect.w = textSurface->w;
-    destRect.h = textSurface->h;
-
-
-    /* Copier la texture dans le renderer */
-    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-
-    /* Détruire la texture une fois dessinée */
-    SDL_DestroyTexture(textTexture);
-
-    /* Rendre le texte dans une surface SDL */
-    for (i = 1; i < 6; i++) {
+    /* Print the text on the SDL surface */
+    /* for all elements in the array */
+    for (i = 0; i < 7; i++) {
         snprintf(buffer, sizeof(buffer), "%s", lines[i]);
-        textSurface = TTF_RenderText_Blended(font, buffer, white);
+        if (i == 0) textSurface = TTF_RenderText_Blended(font, buffer, cyan);
+        else if (i == 6) textSurface = TTF_RenderText_Blended(font, buffer, red);
+        else textSurface = TTF_RenderText_Blended(font, buffer, white);
+        
         if (!textSurface) {
             fprintf(stderr, "TTF_RenderText_Blended error: %s\n", TTF_GetError());
             TTF_CloseFont(font);
-            return;
+            return 1;
         }
 
-        /* Convertir la surface en texture */
+        /* Convert the surface in texture */
         textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         if (!textTexture) {
             fprintf(stderr, "SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
             SDL_FreeSurface(textSurface);
             TTF_CloseFont(font);
-            return;
+            return 1;
         }
 
-        /* Définir où afficher le texte */
+        /* Define the text position */
         destRect.x = 50;
-        destRect.y = 30 + (1+i) * 50; 
+        if (i == 0) destRect.y = 30;
+        else if (i == 6) destRect.y = 30 + 8.5 * 50;
+        else destRect.y = 30 + (1+i) * 50; 
         destRect.w = textSurface->w;
         destRect.h = textSurface->h;
 
 
-        /* Copier la texture dans le renderer */
+        /* Copy the texture in the renderer  */
         SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
 
-        /* Détruire la texture une fois dessinée */
+        /* Destroy the texture when printed */
         SDL_DestroyTexture(textTexture);
 
         
     }
-
-    snprintf(buffer, sizeof(buffer), "%s", lines[6]);
-    textSurface = TTF_RenderText_Blended(font, buffer, red);
-    if (!textSurface) {
-        fprintf(stderr, "TTF_RenderText_Blended error: %s\n", TTF_GetError());
-        TTF_CloseFont(font);
-        return;
-    }
-
-    /* Convertir la surface en texture */
-    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (!textTexture) {
-        fprintf(stderr, "SDL_CreateTextureFromSurface error: %s\n", SDL_GetError());
-        SDL_FreeSurface(textSurface);
-        TTF_CloseFont(font);
-        return;
-    }
-
-    /* Définir où afficher le texte */
-    destRect.x = 50;
-    destRect.y = 30 + 8.5 * 50;
-    destRect.w = textSurface->w;
-    destRect.h = textSurface->h;
-
-
-    /* Copier la texture dans le renderer */
-    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-
-    /* Détruire la texture une fois dessinée */
-    SDL_DestroyTexture(textTexture);
 
     /* Mettre à jour le rendu */
     SDL_RenderPresent(renderer);
     
     while (1) {
         SDL_WaitEvent(&event);
-        if (event.type == SDL_KEYUP) {
-            if (SDLK_UP == event.key.keysym.sym) {grid->player->direction = UP;    break;}
-            if (SDLK_RIGHT == event.key.keysym.sym) {grid->player->direction = RIGHT;    break;}
-            if (SDLK_LEFT == event.key.keysym.sym) {grid->player->direction = LEFT;    break;}
-            if (SDLK_DOWN == event.key.keysym.sym) {grid->player->direction = DOWN;    break;}
-        }
-        if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) grid->player->direction = 5;
+        if (event.type == SDL_KEYUP) return 0;
+        if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) return 1;
     }
 
+    return 0;
+
 }
+
+
 
 
 /* Draws the initial grid border and draws the player/bot in their starting positions */
