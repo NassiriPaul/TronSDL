@@ -5,7 +5,7 @@
 #include "../../include/types.h"
 
 /*Minimum 3 de longeur et 1 de largeur sinon return NULL*/ 
-Grid* initGrid (int n_lines, int n_columns) {
+Grid* initGrid () {
 	Grid* grid = (Grid*) malloc (sizeof(Grid));
 	return grid;
 }
