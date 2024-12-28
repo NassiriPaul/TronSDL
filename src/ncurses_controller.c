@@ -3,7 +3,7 @@
 #include "types.h"      /* For DIRECTIONS enum, etc.                    */
 #include <sys/time.h>   /* gettimeofday, struct timeval                 */
 
-int getDirection(DIRECTIONS *direction, unsigned long ms)
+int getInput(int* direction, unsigned long ms)
 {
     struct timeval start, stop;
     unsigned long elapsed;     /* elapsed time in milliseconds */
@@ -53,6 +53,10 @@ int getDirection(DIRECTIONS *direction, unsigned long ms)
         case KEY_LEFT:  
             *direction = LEFT;  
             break;
+        case 116:  /*Touche t*/
+            *direction = 5;  
+            break;
+            
     }
 
     return (int)remaining;  /* Return leftover time in ms */

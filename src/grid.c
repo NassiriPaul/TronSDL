@@ -7,7 +7,10 @@
 /*Minimum 3 de longeur et 1 de largeur sinon return NULL*/ 
 Grid* initGrid (int n_lines, int n_columns) {
 	Grid* grid = (Grid*) malloc (sizeof(Grid));
+	return grid;
+}
 
+void newRun(Grid* grid, int n_lines, int n_columns){
 	grid->n_lines = n_lines;
 	grid->n_columns = n_columns;
 
@@ -17,8 +20,6 @@ Grid* initGrid (int n_lines, int n_columns) {
 	grid->playerRoute = (Route) malloc (sizeof(Dot));
 	grid->botRoute = (Route) malloc (sizeof(Dot));
 	grid->playerRoute = grid->botRoute = NULL;
-
-	return grid;
 }
 
 void printGrid (Grid* grid){
