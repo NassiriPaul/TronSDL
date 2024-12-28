@@ -7,18 +7,17 @@
 /*Minimum 3 de longeur et 1 de largeur sinon return NULL*/ 
 Grid* initGrid (int n_lines, int n_columns) {
 	Grid* grid = (Grid*) malloc (sizeof(Grid));
+	return grid;
+}
 
+void newRun(Grid* grid, int n_lines, int n_columns){
 	grid->n_lines = n_lines;
 	grid->n_columns = n_columns;
 
 	grid->player = initRider((n_columns*2)/3, n_lines/2);
 	grid->bot = initRider(n_columns/3, n_lines/2);
 
-	grid->playerRoute = (Route) malloc (sizeof(Dot));
-	grid->botRoute = (Route) malloc (sizeof(Dot));
 	grid->playerRoute = grid->botRoute = NULL;
-
-	return grid;
 }
 
 void printGrid (Grid* grid){
@@ -52,12 +51,11 @@ void printGrid (Grid* grid){
 	printf("Bot position : (%d, %d)\n", grid->bot->pos_x, grid->bot->pos_y);
 }
 
-void freeGrid(Grid* grid) {
+void freeRun(Grid* grid) {
 	freeRider (grid->player);
 	freeRider (grid->bot);
 	freeRoute (grid->playerRoute);
 	freeRoute (grid->botRoute);
-	free (grid);
 }
 
 void setPresumedNextDirection(Rider* rider, int* next_x, int* next_y){
