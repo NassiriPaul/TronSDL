@@ -91,29 +91,31 @@ static void changeDirectionBot(Grid* grid) {
 }
 
 /**
- * @brief The strategy to chose the next direction of the bot
+ * @brief the main loop of the game himself
  *  
- * @param grid to get access on information in the map
+ * @param n_lines how many rows the map is made of
+ * @param n_lines how many columns the map is made of
+ *
+ *@ return the score of the player
  */
 static int playGame(int n_lines, int n_columns) {
-    int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot, scorePlayer, scoreBot, turboMovesLeft;
-    int input;
-    clock_t start, end;
-    unsigned long elapsed, remaining;
+    int collisionIndicator; /* collisionIndicator show what type of collision happen, no collision head to route or headbutt */
+    int isOver; /* isOver indicates if the game is over, if 0 not over, if 1 bot won, if 2 player won */
+    int remainingTimePlayer; /* How many ms left before the player will move by himself */
+    int scorePlayer, scoreBot;
+    int turboMovesLeft; /* In turbo mode, he can move 2 times in a row then the bot move. He can do it turboMovesLeft times.
+    int input; /* Will receive the input from the controller to what the player wanna do */
+    unsigned long remaining; /* How many ms he have left before the player move in the direction he have */
     Grid* grid;
-    int i;
+    int i; /* How many time he will move before the bot will move */
     
     scorePlayer = 0, scoreBot = 0;
     grid = initGrid(n_lines, n_columns);
     viewMenu(n_lines, n_columns);
-    /*freeGrid(grid);*/
     while (scorePlayer != 3 && scoreBot != 3) {
-        newRun(grid,n_lines, n_columns);
-        /*grid = initGrid(n_lines, n_columns);*/
+        newRun(grid,n_lines, n_columns); /* Init a new map for the round */
         isOver = 0;
-        turboMovesLeft = 0;
-
-        if (grid->player->direction==5){scoreBot =3; continue;}
+        turboMovesLeft = 0; // do not start in turbo mode
         viewStart(grid, scorePlayer, scoreBot);
         while(!isOver) {
             
@@ -122,20 +124,20 @@ static int playGame(int n_lines, int n_columns) {
             while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
                 remainingTimePlayer = getInput(&input, remainingTimePlayer);
             }
-            if (input==6) {scoreBot =3; break;}
-            if (input == 5 && turboMovesLeft == 0 && grid->player->turbos>0){
+            if (input==6) {scoreBot =3; break;} /* the player try to live so we act like he forfeit and end the game */
+            if (input == 5 && turboMovesLeft == 0 && grid->player->turbos>0){ /* turn on the turbo mode if he isn't on and he have turbo left*/
                 grid->player->turbos--;
-                turboMovesLeft+=8;
+                turboMovesLeft+=6;
                 updateViewTurbos(grid->n_lines, grid->player->turbos);
             } else  if (input != 5) changeDirectionPlayer(grid, input);
 
 
-            for (i = turboMovesLeft>0 ? 2 : 1; i>0;i--) {
+            for (i = turboMovesLeft>0 ? 3 : 1; i>0;i--) { /* He will go in the same direction for i times before the bot can move or he can chose a new direction */
                 collisionIndicator = moveRider (grid, grid->player, &grid->playerRoute);
                 if (collisionIndicator) isOver = 1;
                 viewUpdate(grid);
-                if (turboMovesLeft>0) turboMovesLeft--;
             }
+	    if (turboMovesLeft>0) turboMovesLeft--;
             
             collisionIndicator = moveRider (grid, grid->bot, &grid->botRoute);
             if (collisionIndicator) isOver = 2;
@@ -154,7 +156,6 @@ static int playGame(int n_lines, int n_columns) {
 int startGame(int n_lines, int n_columns) {
     int scorePlayer;
     viewInit();
-	
     scorePlayer = playGame(n_lines, n_columns);
     viewCleanup();
     return scorePlayer==3 ? 1 : 0;
