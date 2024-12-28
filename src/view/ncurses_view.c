@@ -26,12 +26,7 @@ void viewMap(int n_lines, int n_columns){
     }
 }
 
-void viewMenu(Grid *grid){
-    int n_lines;
-    int n_columns;
-
-    n_lines = grid->n_lines;
-    n_columns = grid->n_columns;
+void viewMenu(int n_lines, int n_columns){
     
     clear();
 
@@ -46,6 +41,7 @@ void viewMenu(Grid *grid){
     getch();
     refresh();
 }
+
 
 
 void viewStart(Grid *grid, int scorePlayer, int scoreBot){
