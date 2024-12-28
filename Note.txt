@@ -1,5 +1,0 @@
-Question:
-1) je sais pas trop comment organiser les fichiers, faudra revoir les includes + a voir aussi la répétion de #include <stdio.h>, etc...
-                          
-
-Idee:
