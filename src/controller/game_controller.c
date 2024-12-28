@@ -111,12 +111,13 @@ static int playGame(int n_lines, int n_columns) {
     
     scorePlayer = 0, scoreBot = 0;
     grid = initGrid(n_lines, n_columns);
-    viewMenu(n_lines, n_columns);
+    if (viewMenu(n_lines, n_columns)) scoreBot=3;
     while (scorePlayer != 3 && scoreBot != 3) {
         newRun(grid,n_lines, n_columns); /* Init a new map for the round */
         isOver = 0;
         turboMovesLeft = 0; // do not start in turbo mode
         viewStart(grid, scorePlayer, scoreBot);
+	if (grid->player->direction==5){scoreBot =3; continue;}
         while(!isOver) {
             
             input = grid->player->direction;
