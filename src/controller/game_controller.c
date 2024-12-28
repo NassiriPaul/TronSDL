@@ -2,23 +2,35 @@
 #include "../../include/model.h"
 #include "../../include/view.h"
 #include "../../include/types.h"
-#include <stdlib.h>
+#include <stdlib.h> /* Use for randomness */
 #include <time.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <curses.h>
 
-void sleep_ms(int milliseconds)
+/**
+ * @brief suspend for ms milliseconds
+ *  for simplicity of use, we convert every time related functions we use in milliseconds
+ * @param ms number of milliseconds the program have to stop
+ */
+static void sleep_ms(int ms)
 {
-    usleep(milliseconds * 1000);
+    usleep(ms * 1000); /* Convert milliseconds in microseconds */
 }
 
+/**
+ * @brief change the direction of the player if possible
+ *  a player cannot change for the same direction or the opposite
+ * @param grid to get access to the actual position of the player
+ * @param direction the direction the player want to have
+ */
 static void changeDirectionPlayer(Grid* grid, DIRECTIONS direction) {
     if ((direction == UP || direction == DOWN) && grid->player->direction != UP && grid->player->direction != DOWN) grid->player->direction = direction;
     if ((direction == LEFT || direction == RIGHT) && grid->player->direction != LEFT && grid->player->direction != RIGHT) grid->player->direction = direction;
 }
 
+/**
+ * @brief The strategy to chose the next direction of the bot
+ *  
+ * @param grid to get access on information in the map
+ */
 static void changeDirectionBot(Grid* grid) {
     DIRECTIONS originalDirection;
 	int presumed_next_pos_x,  presumed_next_pos_y, collisionIndicator;
@@ -77,6 +89,12 @@ static void changeDirectionBot(Grid* grid) {
             return;
     }
 }
+
+/**
+ * @brief The strategy to chose the next direction of the bot
+ *  
+ * @param grid to get access on information in the map
+ */
 static int playGame(int n_lines, int n_columns) {
     int collisionIndicator, isOver, remainingTimePlayer, remainingTimeBot, scorePlayer, scoreBot, turboMovesLeft;
     int input;
@@ -94,9 +112,11 @@ static int playGame(int n_lines, int n_columns) {
         /*grid = initGrid(n_lines, n_columns);*/
         isOver = 0;
         turboMovesLeft = 0;
-        viewStart(grid, scorePlayer, scoreBot);
+
         if (grid->player->direction==5){scoreBot =3; continue;}
+        viewStart(grid, scorePlayer, scoreBot);
         while(!isOver) {
+            
             input = grid->player->direction;
             remainingTimePlayer = 100;
             while (remainingTimePlayer>0){ /* While the player have the time to change direction, we let him change it*/
@@ -126,7 +146,6 @@ static int playGame(int n_lines, int n_columns) {
         if (isOver==1) scoreBot++;
         if (isOver==2) scorePlayer++;
         freeRun(grid);
-
     }
     free(grid);
     return scorePlayer;
@@ -135,6 +154,7 @@ static int playGame(int n_lines, int n_columns) {
 int startGame(int n_lines, int n_columns) {
     int scorePlayer;
     viewInit();
+	
     scorePlayer = playGame(n_lines, n_columns);
     viewCleanup();
     return scorePlayer==3 ? 1 : 0;
