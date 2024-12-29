@@ -20,19 +20,19 @@ int getInput(int* input, unsigned long ms)
     /* Interpret the input */
     switch (ch) {
         case KEY_UP:    
-            *direction = UP;    
+            *input = UP;    
             break;
         case KEY_RIGHT: 
-            *direction = RIGHT; 
+            *input = RIGHT; 
             break;
         case KEY_DOWN:  
-            *direction = DOWN;  
+            *input = DOWN;  
             break;
         case KEY_LEFT:  
-            *direction = LEFT;  
+            *input = LEFT;  
             break;
         case 116:  /*Touche t*/
-            *direction = 5;  
+            *input = 5;  
             break;  
     }
     
