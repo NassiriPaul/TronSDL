@@ -103,7 +103,7 @@ static int playGame(int n_lines, int n_columns) {
     int isOver; /* isOver indicates if the game is over, if 0 not over, if 1 bot won, if 2 player won */
     int remainingTimePlayer; /* How many ms left before the player will move by himself */
     int scorePlayer, scoreBot;
-    int turboMovesLeft; /* In turbo mode, he can move 2 times in a row then the bot move. He can do it turboMovesLeft times.
+    int turboMovesLeft; /* In turbo mode, he can move 2 times in a row then the bot move. He can do it turboMovesLeft times.*/
     int input; /* Will receive the input from the controller to what the player wanna do */
     unsigned long remaining; /* How many ms he have left before the player move in the direction he have */
     Grid* grid;
@@ -115,7 +115,7 @@ static int playGame(int n_lines, int n_columns) {
     while (scorePlayer != 3 && scoreBot != 3) {
         newRun(grid,n_lines, n_columns); /* Init a new map for the round */
         isOver = 0;
-        turboMovesLeft = 0; // do not start in turbo mode
+        turboMovesLeft = 0; /* do not start in turbo mode*/
         viewStart(grid, scorePlayer, scoreBot);
 	if (grid->player->direction==5){scoreBot =3; continue;}
         while(!isOver) {
