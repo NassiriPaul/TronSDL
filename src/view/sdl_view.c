@@ -224,7 +224,7 @@ void viewStart(Grid *grid, int scorePlayer, int scoreBot)
             if (SDLK_LEFT == event.key.keysym.sym) {grid->player->direction = LEFT;    break;}
             if (SDLK_DOWN == event.key.keysym.sym) {grid->player->direction = DOWN;    break;}
         }
-        if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) grid->player->direction = 5;
+        if (event.type==SDL_WINDOWEVENT && event.window.event==SDL_WINDOWEVENT_CLOSE) {grid->player->direction = 5;break;}
     }
 }
 
