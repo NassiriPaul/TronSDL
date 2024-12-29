@@ -17,7 +17,7 @@ int getInput(int* input, unsigned long ms)
     
     ch = getch();
 
-    * Interpret the input */
+    /* Interpret the input */
     switch (ch) {
         case KEY_UP:    
             *direction = UP;    
