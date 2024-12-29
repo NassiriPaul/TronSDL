@@ -29,16 +29,6 @@ The user have to chose a interface when compiling.
 - **SDL** (graphics mode)
   ```bash
   make UI=sdl
-  
-### Prerequisites
-
-- **ncurses** (console mode)  
-  ```bash
-  sudo apt-get install libncurses-dev
-- **SDL2** and **SDL2_ttf** (graphics mode)
-  ```bash
-  sudo apt-get install libsdl2-dev libsdl2-ttf-dev
-
 
 ### Launch the game
 After compilition, a bin folder will be created. Inside, you will find a game exec.
